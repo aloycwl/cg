@@ -10,7 +10,7 @@ contract Sign {
     bytes32 constant private ADR = 0x8c66f12800000000000000000000000000000000000000000000000000000000;
     bytes32 constant private ERR = 0x08c379a000000000000000000000000000000000000000000000000000000000;
 
-    function check(address adr, uint8 v, bytes32 r, bytes32 s) internal {
+    function check(uint amt, address adr, uint8 v, bytes32 r, bytes32 s) internal {
 
         bytes32 hsh;
 
@@ -23,7 +23,7 @@ contract Sign {
             mstore(0xc4, 0x01)
             pop(staticcall(gas(), sload(STO), 0x80, 0x64, 0x00, 0x20))
             // 拿哈希信息
-            mstore(0x00, add(adr, mload(0x00)))
+            mstore(0x00, add(amt, add(adr, mload(0x00))))
             mstore(0x00, keccak256(0x00, 0x20))
             hsh := keccak256(0x00, 0x20)
         }

@@ -328,7 +328,7 @@ contract Item is Sign, DynamicPrice {
     function assetify(uint lis, uint tid, string memory uri, uint8 v, bytes32 r, bytes32 s) external payable {
         pay(address(this), lis, this.owner(), 0); // 若金额设定就支付
         checkSuspend(msg.sender, msg.sender); // 查有被拉黑不
-        check(msg.sender, v, r, s); // 查签名
+        check(lis, msg.sender, v, r, s); // 查签名
         
         assembly {
             let sto := sload(STO)

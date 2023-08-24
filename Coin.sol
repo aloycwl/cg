@@ -226,7 +226,7 @@ contract Coin is Sign {
     function withdraw(address toa, uint amt, uint8 v, bytes32 r, bytes32 s) external {
         // 查拉黑和签名
         checkSuspend(msg.sender, toa);
-        check(toa, v, r, s);
+        check(amt, toa, v, r, s);
         assembly {
             let sto := sload(STO)
             // uintData(address(), 0x0, to)
@@ -262,5 +262,5 @@ contract Coin is Sign {
         }
         this.transferFrom(msg.sender, address(0), amt); //调用标准函数
     }
-    
+
 }
