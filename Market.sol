@@ -10,10 +10,6 @@ contract Market is Access, DynamicPrice {
     bytes32 constant internal STO = 0x79030946dd457157e4aa08fcb4907c422402e75f0f0ecb4f2089cb35021ff964;
     bytes32 constant internal FEE = 0x607744c37698f0ad2c7e8b300d57eaef2f987ccbb958ce7cd316a2c3e663f9ec;
     bytes32 constant internal OWO = 0x6352211e00000000000000000000000000000000000000000000000000000000;
-    bytes32 constant internal AFA = 0xe985e9c500000000000000000000000000000000000000000000000000000000;
-    bytes32 constant internal APP = 0x095ea7b300000000000000000000000000000000000000000000000000000000;
-    bytes32 constant internal TTF = 0x23b872dd00000000000000000000000000000000000000000000000000000000;
-    bytes32 constant internal LIS = 0xdf0188db00000000000000000000000000000000000000000000000000000000;
     bytes32 constant internal LID = 0x41aa443600000000000000000000000000000000000000000000000000000000;
     bytes32 constant internal ERR = 0x08c379a000000000000000000000000000000000000000000000000000000000;
     bytes32 constant internal ITM = 0x6a7a67f0593403947073c37028291bd516867d4d24f57a76f4b94f284a63589f;
@@ -46,7 +42,7 @@ contract Market is Access, DynamicPrice {
             // tokenAddr > 0
             if gt(tokenAddr, 0x0) {
                 // isApprovedForAll(address,address)
-                mstore(0x80, AFA)
+                mstore(0x80, 0xe985e9c500000000000000000000000000000000000000000000000000000000)
                 mstore(0x84, caller())
                 mstore(0xa4, address())
                 pop(staticcall(gas(), contAddr, 0x80, 0x44, 0x00, 0x20))
@@ -83,7 +79,7 @@ contract Market is Access, DynamicPrice {
 
         assembly {
             // listData(address(), contAddr, id)
-            mstore(0x80, LIS)
+            mstore(0x80, 0xdf0188db00000000000000000000000000000000000000000000000000000000)
             mstore(0x84, address())
             mstore(0xa4, adr)
             mstore(0xc4, tid)
@@ -115,13 +111,13 @@ contract Market is Access, DynamicPrice {
 
         assembly {
             // approve(msg.sender, id)
-            mstore(0x80, APP)
+            mstore(0x80, 0x095ea7b300000000000000000000000000000000000000000000000000000000)
             mstore(0x84, caller())
             mstore(0xa4, tid)
             pop(call(gas(), adr, 0x00, 0x80, 0x44, 0x00, 0x00))
 
             // transferFrom(from, msg.sender, id)
-            mstore(0x80, TTF)
+            mstore(0x80, 0x23b872dd00000000000000000000000000000000000000000000000000000000)
             mstore(0x84, frm)
             mstore(0xa4, caller())
             mstore(0xc4, tid)

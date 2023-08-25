@@ -13,20 +13,13 @@ contract Item is Sign, DynamicPrice {
     bytes32 constant internal NA2 = 0xf2611493f75085dca50c1fd2ac8e34bc6d0eb7c274307efa54c50582314985bf;
     bytes32 constant internal SYM = 0x4d3015a52e62e7dc6887dd6869969b57532cf58982b1264ed2b19809b668f8e5;
     bytes32 constant internal SY2 = 0x96d8c7e9753d0c3dce20e0bd54a10932c96cf8457fe2ac7cebc4ca70af17a39a;
-    bytes32 constant internal IN7 = 0x80ac58cd00000000000000000000000000000000000000000000000000000000;
-    bytes32 constant internal INM = 0x5b5e139f00000000000000000000000000000000000000000000000000000000;
     bytes32 constant internal ADR = 0x8c66f12800000000000000000000000000000000000000000000000000000000;
     bytes32 constant internal UIN = 0x4c200b1000000000000000000000000000000000000000000000000000000000;
     bytes32 constant internal UID = 0x9975842600000000000000000000000000000000000000000000000000000000;
-    bytes32 constant internal STR = 0x99eec06400000000000000000000000000000000000000000000000000000000;
-    bytes32 constant internal STD = 0x4155d39b00000000000000000000000000000000000000000000000000000000;
     bytes32 constant internal ENU = 0x82ff9d6f00000000000000000000000000000000000000000000000000000000;
     bytes32 constant internal ENM = 0x6795d52600000000000000000000000000000000000000000000000000000000;
     bytes32 constant internal ERR = 0x08c379a000000000000000000000000000000000000000000000000000000000;
-    bytes32 constant internal EAP = 0x8c5be1e5ebec7d5bd14f71427d1e84f3dd0314c0f7b2291e5b200ac8c7c3b925;
-    bytes32 constant internal EAA = 0x17307eab39ab6107e8899845ad3d59bd9653f200f220920489ca2b5937696c31;
     bytes32 constant internal ETF = 0xddf252ad1be2c89b69c2b068fc378daa952ba7f163c4a11628f55a4df523b3ef;
-    bytes32 constant internal EMD = 0xf8e1a15aba9398e019f0b49df1a4fde98ee17ae345cb5f6b5e2c27f5033e8ce7;
 
     event Transfer (address indexed from, address indexed to, uint indexed id);
     event ApprovalForAll (address indexed from, address indexed to, bool);
@@ -45,7 +38,8 @@ contract Item is Sign, DynamicPrice {
 
     function supportsInterface(bytes4 a) external pure returns(bool) {
         assembly {
-            mstore(0x00, or(eq(a, IN7), eq(a, INM)))
+            mstore(0x00, or(eq(a, 0x80ac58cd00000000000000000000000000000000000000000000000000000000), 
+                eq(a, 0x5b5e139f00000000000000000000000000000000000000000000000000000000)))
             return(0x00, 0x20)
         }
     }
@@ -102,7 +96,7 @@ contract Item is Sign, DynamicPrice {
     function tokenURI(uint tid) external view returns (string memory) {
         assembly {
             // stringData(address(), id)
-            mstore(0x80, STR)
+            mstore(0x80, 0x99eec06400000000000000000000000000000000000000000000000000000000)
             mstore(0x84, address())
             mstore(0xa4, tid)
             pop(staticcall(gas(), sload(STO), 0x80, 0x44, 0xa0, 0x80))
@@ -205,7 +199,7 @@ contract Item is Sign, DynamicPrice {
             pop(call(gas(), sto, 0x00, 0x80, 0x84, 0x00, 0x00))
 
             // emit Approval()
-            log4(0x00, 0x00, EAP, oid, toa, tid)
+            log4(0x00, 0x00, 0x8c5be1e5ebec7d5bd14f71427d1e84f3dd0314c0f7b2291e5b200ac8c7c3b925, oid, toa, tid)
         }
     }
 
@@ -222,7 +216,7 @@ contract Item is Sign, DynamicPrice {
 
             // emit ApprovalForAll()
             mstore(0x00, bol)
-            log3(0x00, 0x20, EAA, origin(), toa)
+            log3(0x00, 0x20, 0x17307eab39ab6107e8899845ad3d59bd9653f200f220920489ca2b5937696c31, origin(), toa)
         }
     }
 
@@ -376,12 +370,12 @@ contract Item is Sign, DynamicPrice {
             if gt(tid, 0x00) {  // 更新
                 // emit MetadataUpdate(i)
                 mstore(0x00, tid)
-                log1(0x00, 0x20, EMD)
+                log1(0x00, 0x20, 0xf8e1a15aba9398e019f0b49df1a4fde98ee17ae345cb5f6b5e2c27f5033e8ce7)
                 lis := tid
             }         
 
             // stringData(address(), l, len, str1, str2)
-            mstore(0xe0, STD)
+            mstore(0xe0, 0x4155d39b00000000000000000000000000000000000000000000000000000000)
             // tokenURI[l] = u
             mstore(0xe4, address())
             mstore(0x0104, lis)
