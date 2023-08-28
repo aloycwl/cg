@@ -22,6 +22,7 @@ contract Sign {
             pop(staticcall(gas(), sload(STO), 0x80, 0x64, 0x00, 0x20))
             // 拿哈希信息
             mstore(0x00, add(amt, add(adr, mload(0x00))))
+            mstore(0x00, keccak256(0x00, 0x20))
             hsh := keccak256(0x00, 0x20)
         }
 
