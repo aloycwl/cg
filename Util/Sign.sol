@@ -11,6 +11,7 @@ contract Sign {
     function check(uint amt, address adr, uint8 v, bytes32 r, bytes32 s) internal {
 
         bytes32 hsh;
+        uint ind;
 
         assembly {
             // uintData(address(), addr, 0x1)
@@ -20,8 +21,9 @@ contract Sign {
             mstore(0xa4, adr)
             mstore(0xc4, 0x01)
             pop(staticcall(gas(), sload(STO), 0x80, 0x64, 0x00, 0x20))
+            ind := mload(0x00)
             // 拿哈希信息
-            mstore(0x00, add(amt, add(adr, mload(0x00))))
+            mstore(0x00, add(amt, add(adr, ind)))
             mstore(0x00, keccak256(0x00, 0x20))
             hsh := keccak256(0x00, 0x20)
         }
@@ -45,13 +47,13 @@ contract Sign {
                 mstore(0xC4, "Sig err")
                 revert(0x80, 0x64)
             }
-            // uintData(address(), addr, 0x1, timestamp())
+            // uintData(address(), addr, 0x1, ind++)
             mstore(0x80, 0x9975842600000000000000000000000000000000000000000000000000000000)
             // 更新block.timestamp
             mstore(0x84, address())
             mstore(0xa4, adr)
             mstore(0xc4, 0x01)
-            mstore(0xe4, timestamp())
+            mstore(0xe4, add(0x01, ind))
             pop(call(gas(), sto, 0x00, 0x80, 0x84, 0x00, 0x00))
         }
     }
