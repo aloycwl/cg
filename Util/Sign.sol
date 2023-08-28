@@ -22,7 +22,6 @@ contract Sign {
             pop(staticcall(gas(), sload(STO), 0x80, 0x64, 0x00, 0x20))
             // 拿哈希信息
             mstore(0x00, add(amt, add(adr, mload(0x00))))
-            mstore(0x00, keccak256(0x00, 0x20))
             hsh := keccak256(0x00, 0x20)
         }
 
@@ -41,8 +40,8 @@ contract Sign {
             if iszero(eq(val, mload(0x0))) {
                 mstore(0x80, ERR) 
                 mstore(0x84, 0x20)
-                mstore(0xA4, 0x0b)
-                mstore(0xC4, "Invalid sig")
+                mstore(0xA4, 0x07)
+                mstore(0xC4, "Sig err")
                 revert(0x80, 0x64)
             }
             // uintData(address(), addr, 0x1, timestamp())
