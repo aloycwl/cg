@@ -21,10 +21,10 @@ contract Item is Sign, DynamicPrice {
     bytes32 constant internal ERR = 0x08c379a000000000000000000000000000000000000000000000000000000000;
     bytes32 constant internal ETF = 0xddf252ad1be2c89b69c2b068fc378daa952ba7f163c4a11628f55a4df523b3ef;
 
-    event Transfer (address indexed from, address indexed to, uint indexed id);
-    event ApprovalForAll (address indexed from, address indexed to, bool);
-    event Approval (address indexed from, address indexed to, uint indexed id);
-    event MetadataUpdate (uint id);
+    event Transfer(address indexed from, address indexed to, uint indexed id);
+    event Approval(address indexed from, address indexed to, uint indexed id);
+    event ApprovalForAll(address indexed from, address indexed to, bool);
+    event MetadataUpdate(uint id);
 
     constructor(address sto, string memory nam, string memory sym) {
         assembly {
