@@ -9,14 +9,14 @@ contract ItemP is Item, UUPSUpgradeable {
 
     constructor() Item(address(0), "", "") { }
 
-    function initialize(address sto, string memory nam, string memory sym) external {
+    function initialize(address sto) external {
         init();
         assembly {
             sstore(STO, sto)
-            sstore(NAM, mload(nam))
-            sstore(NA2, mload(add(nam, 0x20)))
-            sstore(SYM, mload(sym))
-            sstore(SY2, mload(add(sym, 0x20)))
+            sstore(NAM, "Item Proxy")
+            sstore(NA2, 0x0a)
+            sstore(SYM, "ItP")
+            sstore(SY2, 0x03)
             // owner = msg.sender 不能用DynamicPrice constructor因为写不进
             sstore(0x658a3ae51bffe958a5b16701df6cfe4c3e73eac576c08ff07c35cf359a8a002e, caller())
         }

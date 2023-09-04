@@ -9,15 +9,15 @@ contract CoinP is Coin, UUPSUpgradeable {
 
     constructor() Coin(address(0), "", "") { }
 
-    function initialize(address sto, string memory nam, string memory syb) external {
+    function initialize(address sto) external {
         init();
         assembly {
             // 设置string和string.length
             sstore(STO, sto)
-            sstore(NAM, mload(nam))
-            sstore(NA2, mload(add(nam, 0x20)))
-            sstore(SYM, mload(syb))
-            sstore(SY2, mload(add(syb, 0x20)))
+            sstore(NAM, "Coin Proxy")
+            sstore(NA2, 0x0a)
+            sstore(SYM, "CoP")
+            sstore(SY2, 0x03)
         } 
     }
 
