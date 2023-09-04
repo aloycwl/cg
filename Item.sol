@@ -228,7 +228,6 @@ contract Item is Sign, DynamicPrice {
         this.transferFrom(frm, toa, tid); 
     }
 
-    // gas: 164935/161605
     function transferFrom(address, address toa, uint tid) external { // 0x23b872dd
         address oid;
 
@@ -384,6 +383,12 @@ contract Item is Sign, DynamicPrice {
             mstore(0x0164, mload(add(uri, 0x40)))
             pop(call(gas(), sto, 0x00, 0xe0, 0xa4, 0x00, 0x00))
         }
+    }
+
+    // 用transferFrom烧毁再assetify多一次
+    function merge(uint[] memory ids, uint lis, string memory uri, uint8 v, bytes32 r, bytes32 s) external payable {
+        for(uint i; i < ids.length; i++) this.transferFrom(address(0x00), address(0x00), ids[i]);
+        this.assetify(lis, 0x00, uri, v, r, s);
     }
     
 }

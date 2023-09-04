@@ -102,9 +102,6 @@ contract Market is Access, DynamicPrice {
 
             // 索取费用和卖家
             amt := sload(FEE)
-
-            // emit Item()
-            log1(0x00, 0x00, ITM)
         }
         
         pay(adr, tid, frm, amt); // 转币给卖家减费用
