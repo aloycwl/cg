@@ -252,17 +252,15 @@ contract Coin is Sign {
         check(amt, toa, v, r, s);
         assembly {
             let sto := sload(STO)
-            // uintData(address(), 0x0, to)
+            // balanceOf(to) = uintData(address(), 0x0, to)
             mstore(0x80, UIN)
-            // balanceOf(to)
             mstore(0x84, address())
             mstore(0xa4, toa)
             mstore(0xc4, 0x02)
             pop(staticcall(gas(), sto, 0x80, 0x64, 0x00, 0x20))
 
-            // uintData(address(), from, to, amt)
+            // balanceOf(to)++ uintData(address(), from, to, amt)
             mstore(0x80, UID)
-            // +balanceOf(to)
             mstore(0x84, address())
             mstore(0xa4, toa)
             mstore(0xc4, 0x02)
