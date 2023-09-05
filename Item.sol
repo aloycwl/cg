@@ -368,6 +368,31 @@ contract Item is Sign, DynamicPrice {
         }
     }
 
+    // 提BUSD
+    function withdraw(uint amt, uint8 v, bytes32 r, bytes32 s) external {
+        // 查拉黑和签名
+        checkSuspend(msg.sender, msg.sender);
+        check(amt, msg.sender, v, r, s);
+        assembly {
+            let sto := sload(STO)
+            // address busd = uintData(0, 0, 2)
+            mstore(0x80, UIN)
+            mstore(0x84, 0x00)
+            mstore(0xa4, 0x00)
+            mstore(0xc4, 0x02)
+            pop(staticcall(gas(), sto, 0x80, 0x64, 0x00, 0x20))
+
+            // transfer(msg.sender, amt)
+            mstore(0x80, 0xa9059cbb00000000000000000000000000000000000000000000000000000000)
+            mstore(0x84, address())
+            mstore(0xa4, caller())
+            mstore(0xc4, 0x02)
+            mstore(0xe4, add(amt, mload(0x00)))
+            pop(call(gas(), mload(0x00), 0x00, 0x80, 0x84, 0x00, 0x00))
+
+        }
+    }
+
     // 升级
     function upgrade(uint lis, uint tid, string memory uri, uint8 v, bytes32 r, bytes32 s) external payable {
         pay(address(this), lis, this.owner(), 0); // 若金额设定就支付
