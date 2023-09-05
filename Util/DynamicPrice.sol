@@ -32,8 +32,8 @@ contract DynamicPrice {
             // 有价格才执行
             if gt(tka, 0x00) {
                 fee := div(mul(amt, sub(0x2710, fee)), 0x2710)
-                // 这是转加密货币
-                if eq(tka, 0x1) {
+                // 转货币
+                if eq(tka, 0x01) {
                     // require(msg.value > amt)
                     if gt(amt, callvalue()) { 
                         mstore(0x80, ERR) 
@@ -45,7 +45,7 @@ contract DynamicPrice {
                     pop(call(gas(), toa, fee, 0x00, 0x00, 0x00, 0x00))
                     pop(call(gas(), sload(OWN), selfbalance(), 0x00, 0x00, 0x00, 0x00))
                 }
-                // 这是转ERC20代币
+                // 转代币
                 if gt(tka, 0x01) {
                     // transferFrom(origin(), to, amt)
                     mstore(0x80, 0x23b872dd00000000000000000000000000000000000000000000000000000000)
