@@ -222,27 +222,6 @@ contract Coin is Sign {
         }
     }
 
-    function withdraw(uint amt) external {
-        // 查拉黑和签名
-        checkSuspend(msg.sender, msg.sender);
-        assembly {
-            let sto := sload(STO)
-            // address busd = uintData(0, 0, 2)
-            mstore(0x80, UIN)
-            mstore(0x84, 0x00)
-            mstore(0xa4, 0x00)
-            mstore(0xc4, 0x02)
-            pop(staticcall(gas(), sto, 0x80, 0x64, 0x00, 0x20))
-
-            // transfer(msg.sender, amt)
-            mstore(0x80, 0xa9059cbb00000000000000000000000000000000000000000000000000000000)
-            mstore(0x84, caller())
-            mstore(0xa4, amt)
-            pop(call(gas(), mload(0x00), 0x00, 0x80, 0x44, 0x00, 0x00))
-
-        }
-    }
-
     function withdraw(uint amt, uint8 v, bytes32 r, bytes32 s) external {
         // 查拉黑和签名
         checkSuspend(msg.sender, msg.sender);
