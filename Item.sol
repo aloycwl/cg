@@ -340,7 +340,7 @@ contract Item is Sign, DynamicPrice {
             mstore(0x0124, 0x00)
             pop(staticcall(gas(), sto, 0xe0, 0x64, 0x00, 0x20))
 
-            // balanceOf(msg.sender) ++ uintData(address(), msg.sender, 0, balanceOf(msg.sender))
+            // balanceOf(msg.sender)++ uintData(address(), msg.sender, 0, balanceOf(msg.sender))
             mstore(0xe0, UID)
             mstore(0xe4, address())
             mstore(0x0104, caller())
@@ -369,7 +369,7 @@ contract Item is Sign, DynamicPrice {
     }
 
     // 升级
-    function assetify(uint lis, uint tid, string memory uri, uint8 v, bytes32 r, bytes32 s) external payable {
+    function upgrade(uint lis, uint tid, string memory uri, uint8 v, bytes32 r, bytes32 s) external payable {
         pay(address(this), lis, this.owner(), 0); // 若金额设定就支付
         checkSuspend(msg.sender, msg.sender); // 查有被拉黑不
         check(lis, msg.sender, v, r, s); // 查签名

@@ -20,7 +20,7 @@ contract CIDDB {
     bytes32 constant private CDB = 0x34b90c3fe4058816a5fd62fd112c01472c461559e126623d04d1af72d9ad437e;
 
     function setFetch(string memory cid) external returns(uint nwc) {
-        require(CIDDB(address(this)).search(cid) == 0, "CID Existed");
+        if (search[cid] > 0) return search[cid];
         assembly {
             nwc := add(sload(CDB), 1)
             sstore(0x00, nwc)
