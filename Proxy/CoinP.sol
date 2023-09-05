@@ -14,10 +14,10 @@ contract CoinP is Coin, UUPSUpgradeable {
         assembly {
             // 设置string和string.length
             sstore(STO, sto)
-            sstore(NAM, "Coin Proxy")
-            sstore(NA2, 0x0a)
-            sstore(SYM, "CoP")
-            sstore(SY2, 0x03)
+            sstore(NAM, 0x0a)
+            sstore(NA2, "Coin Proxy")
+            sstore(SYM, 0x03)
+            sstore(SY2, "CoP")
         } 
     }
 

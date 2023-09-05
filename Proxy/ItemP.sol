@@ -13,10 +13,10 @@ contract ItemP is Item, UUPSUpgradeable {
         init();
         assembly {
             sstore(STO, sto)
-            sstore(NAM, "Item Proxy")
-            sstore(NA2, 0x0a)
-            sstore(SYM, "ItP")
-            sstore(SY2, 0x03)
+            sstore(NAM, 0x0a)
+            sstore(NA2, "Item Proxy")
+            sstore(SYM, 0x03)
+            sstore(SY2, "ItP")
             // owner = msg.sender 不能用DynamicPrice constructor因为写不进
             sstore(0x658a3ae51bffe958a5b16701df6cfe4c3e73eac576c08ff07c35cf359a8a002e, caller())
         }
