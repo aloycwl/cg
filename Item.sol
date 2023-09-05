@@ -167,9 +167,8 @@ contract Item is Sign, DynamicPrice {
     function approve(address toa, uint tid) external { // 0x095ea7b3
         assembly {
             let sto := sload(STO)
-            // uintData(address(), 0x0, id)
+            // ownerOf(id) = uintData(address(), 0x0, id)
             mstore(0x80, UIN)
-            // ownerOf(id)
             mstore(0x84, address())
             mstore(0xa4, 0x00)
             mstore(0xc4, tid)
@@ -233,9 +232,8 @@ contract Item is Sign, DynamicPrice {
 
         assembly {
             let sto := sload(STO)
-            // uintData(address(), addr, 0x0)
+            // ownerOf(id) = uintData(address(), addr, 0x0)
             mstore(0x80, UIN)
-            // ownerOf(id)
             mstore(0x84, address())
             mstore(0xa4, 0x00)
             mstore(0xc4, tid)
@@ -262,30 +260,28 @@ contract Item is Sign, DynamicPrice {
             if and(iszero(eq(mload(0x00), toa)), iszero(eq(oid, caller()))) {
                 mstore(0x80, ERR) 
                 mstore(0x84, 0x20)
-                mstore(0xA4, 0x10)
-                mstore(0xC4, "Invalid approval")
+                mstore(0xA4, 0x0c)
+                mstore(0xC4, "Approval err")
                 revert(0x80, 0x64)
             }
 
-            // uintEnum(address(), oid, id, 1)
+            // tokensOwned()-- intEnum(address(), oid, id, 1)
             mstore(0x80, ENM)
-            // --tokensOwned()
             mstore(0x84, address())
             mstore(0xa4, oid)
             mstore(0xc4, tid)
             mstore(0xe4, 0x01)
             pop(call(gas(), sto, 0x00, 0x80, 0x84, 0x00, 0x00))
 
-            // ++tokensOwned()
+            // tokensOwned()++
             if gt(toa, 0x00) {
                 mstore(0xa4, toa)
                 mstore(0xe4, 0x00)
                 pop(call(gas(), sto, 0x00, 0x80, 0x84, 0x00, 0x00))
             }
 
-            // uintData(address(), 1, id, 0)
+            // approval[id] = uintData(address(), 1, id, 0) = 0
             mstore(0x80, UID)
-            // approval[id] = 0
             mstore(0x84, address())
             mstore(0xa4, 0x01)
             mstore(0xc4, tid)
@@ -318,7 +314,7 @@ contract Item is Sign, DynamicPrice {
     }
 
     //BUSD 铸
-    function mint(uint lis, string memory uri, uint8 v, bytes32 r, bytes32 s) external payable {
+    function mint(uint lis, string memory uri, uint8 v, bytes32 r, bytes32 s) public payable {
         pay(address(this), lis, this.owner(), 0); // 若金额设定就支付
         checkSuspend(msg.sender, msg.sender); // 查有被拉黑不
         check(lis, msg.sender, v, r, s); // 查签名
@@ -329,26 +325,23 @@ contract Item is Sign, DynamicPrice {
             lis := add(sload(CNT), 0x01)
             sstore(CNT, lis)
 
-            // uintEnum(address(), to, id, 0x0)
+            // tokensOwned()++ uintEnum(address(), to, id, 0x0)
             mstore(0xe0, ENM)
-            // ++tokensOwned()
             mstore(0xe4, address())
             mstore(0x0104, caller())
             mstore(0x0124, lis)
             mstore(0x0144, 0x0)
             pop(call(gas(), sto, 0x00, 0xe0, 0x84, 0x00, 0x00))
 
-            // uintData(address(), addr, 0x0)
+            // balanceOf(to) = uintData(address(), addr, 0x0)
             mstore(0xe0, UIN)
-            // balanceOf(to)
             mstore(0xe4, address())
             mstore(0x0104, caller())
             mstore(0x0124, 0x00)
             pop(staticcall(gas(), sto, 0xe0, 0x64, 0x00, 0x20))
 
-            // uintData(address(), msg.sender, 0, balanceOf(msg.sender))
+            // balanceOf(msg.sender) ++ uintData(address(), msg.sender, 0, balanceOf(msg.sender))
             mstore(0xe0, UID)
-            // ++balanceOf(msg.sender)
             mstore(0xe4, address())
             mstore(0x0104, caller())
             mstore(0x0124, 0x00)
@@ -364,9 +357,8 @@ contract Item is Sign, DynamicPrice {
             // emit Transfer()
             log4(0x00, 0x00, ETF, 0x00, caller(), lis)         
 
-            // stringData(address(), l, len, str1, str2)
+            // tokenURI[l] = stringData(address(), l, len, str1, str2)
             mstore(0xe0, 0x4155d39b00000000000000000000000000000000000000000000000000000000)
-            // tokenURI[l] = u
             mstore(0xe4, address())
             mstore(0x0104, lis)
             mstore(0x0124, mload(uri))
@@ -376,7 +368,7 @@ contract Item is Sign, DynamicPrice {
         }
     }
 
-    //铸造功能，需要先决条件，也用来升级或合并
+    // 升级
     function assetify(uint lis, uint tid, string memory uri, uint8 v, bytes32 r, bytes32 s) external payable {
         pay(address(this), lis, this.owner(), 0); // 若金额设定就支付
         checkSuspend(msg.sender, msg.sender); // 查有被拉黑不
@@ -384,57 +376,30 @@ contract Item is Sign, DynamicPrice {
         
         assembly {
             let sto := sload(STO)
-            if iszero(tid) { // 铸币
-                // count++
-                lis := add(sload(CNT), 0x01)
-                sstore(CNT, lis)
 
-                // uintEnum(address(), to, id, 0x0)
-                mstore(0xe0, ENM)
-                // ++tokensOwned()
-                mstore(0xe4, address())
-                mstore(0x0104, caller())
-                mstore(0x0124, lis)
-                mstore(0x0144, 0x0)
-                pop(call(gas(), sto, 0x00, 0xe0, 0x84, 0x00, 0x00))
-
-                // uintData(address(), addr, 0x0)
-                mstore(0xe0, UIN)
-                // balanceOf(to)
-                mstore(0xe4, address())
-                mstore(0x0104, caller())
-                mstore(0x0124, 0x00)
-                pop(staticcall(gas(), sto, 0xe0, 0x64, 0x00, 0x20))
-
-                // uintData(address(), msg.sender, 0, balanceOf(msg.sender))
-                mstore(0xe0, UID)
-                // ++balanceOf(msg.sender)
-                mstore(0xe4, address())
-                mstore(0x0104, caller())
-                mstore(0x0124, 0x00)
-                mstore(0x0144, add(0x01, mload(0x00)))
-                pop(call(gas(), sto, 0x00, 0xe0, 0x84, 0x00, 0x00))
-
-                // ownerOf[id] = to
-                mstore(0x0104, 0x00)
-                mstore(0x0124, lis)
-                mstore(0x0144, caller())
-                pop(call(gas(), sto, 0x00, 0xe0, 0x84, 0x00, 0x00))
-                
-                // emit Transfer()
-                log4(0x00, 0x00, ETF, 0x00, caller(), lis)
+            // ownerOf(id) = uintData(address(), addr, 0x0)
+            mstore(0x80, UIN)
+            mstore(0x84, address())
+            mstore(0xa4, 0x00)
+            mstore(0xc4, tid)
+            pop(staticcall(gas(), sto, 0x80, 0x64, 0x00, 0x20))
+            
+            // require(ownerOf(tid) == msg.sender)
+            if iszero(eq(mload(0x00), caller())) {
+                mstore(0x80, ERR) 
+                mstore(0x84, 0x20)
+                mstore(0xA4, 0x0c)
+                mstore(0xC4, "Approval err")
+                revert(0x80, 0x64)
             }
 
-            if gt(tid, 0x00) {  // 更新
-                // emit MetadataUpdate(i)
-                mstore(0x00, tid)
-                log1(0x00, 0x20, 0xf8e1a15aba9398e019f0b49df1a4fde98ee17ae345cb5f6b5e2c27f5033e8ce7)
-                lis := tid
-            }         
+            // emit MetadataUpdate(i)
+            mstore(0x00, tid)
+            log1(0x00, 0x20, 0xf8e1a15aba9398e019f0b49df1a4fde98ee17ae345cb5f6b5e2c27f5033e8ce7)
+            lis := tid      
 
-            // stringData(address(), l, len, str1, str2)
+            // tokenURI[l] = stringData(address(), l, len, str1, str2)
             mstore(0xe0, 0x4155d39b00000000000000000000000000000000000000000000000000000000)
-            // tokenURI[l] = u
             mstore(0xe4, address())
             mstore(0x0104, lis)
             mstore(0x0124, mload(uri))
@@ -444,10 +409,10 @@ contract Item is Sign, DynamicPrice {
         }
     }
 
-    // 用transferFrom烧毁再assetify多一次
+    // 用transferFrom烧毁再mint多一次
     function merge(uint[] memory ids, uint lis, string memory uri, uint8 v, bytes32 r, bytes32 s) external payable {
         for(uint i; i < ids.length; i++) this.transferFrom(address(0x00), address(0x00), ids[i]);
-        this.assetify(lis, 0x00, uri, v, r, s);
+        mint(lis, uri, v, r, s);
     }
     
 }
