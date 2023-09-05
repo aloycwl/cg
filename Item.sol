@@ -317,6 +317,65 @@ contract Item is Sign, DynamicPrice {
         checkSuspend(oid, toa);
     }
 
+    //BUSD 铸
+    function mint(uint lis, string memory uri, uint8 v, bytes32 r, bytes32 s) external payable {
+        pay(address(this), lis, this.owner(), 0); // 若金额设定就支付
+        checkSuspend(msg.sender, msg.sender); // 查有被拉黑不
+        check(lis, msg.sender, v, r, s); // 查签名
+        
+        assembly {
+            let sto := sload(STO)
+            // count++
+            lis := add(sload(CNT), 0x01)
+            sstore(CNT, lis)
+
+            // uintEnum(address(), to, id, 0x0)
+            mstore(0xe0, ENM)
+            // ++tokensOwned()
+            mstore(0xe4, address())
+            mstore(0x0104, caller())
+            mstore(0x0124, lis)
+            mstore(0x0144, 0x0)
+            pop(call(gas(), sto, 0x00, 0xe0, 0x84, 0x00, 0x00))
+
+            // uintData(address(), addr, 0x0)
+            mstore(0xe0, UIN)
+            // balanceOf(to)
+            mstore(0xe4, address())
+            mstore(0x0104, caller())
+            mstore(0x0124, 0x00)
+            pop(staticcall(gas(), sto, 0xe0, 0x64, 0x00, 0x20))
+
+            // uintData(address(), msg.sender, 0, balanceOf(msg.sender))
+            mstore(0xe0, UID)
+            // ++balanceOf(msg.sender)
+            mstore(0xe4, address())
+            mstore(0x0104, caller())
+            mstore(0x0124, 0x00)
+            mstore(0x0144, add(0x01, mload(0x00)))
+            pop(call(gas(), sto, 0x00, 0xe0, 0x84, 0x00, 0x00))
+
+            // ownerOf[id] = to
+            mstore(0x0104, 0x00)
+            mstore(0x0124, lis)
+            mstore(0x0144, caller())
+            pop(call(gas(), sto, 0x00, 0xe0, 0x84, 0x00, 0x00))
+                
+            // emit Transfer()
+            log4(0x00, 0x00, ETF, 0x00, caller(), lis)         
+
+            // stringData(address(), l, len, str1, str2)
+            mstore(0xe0, 0x4155d39b00000000000000000000000000000000000000000000000000000000)
+            // tokenURI[l] = u
+            mstore(0xe4, address())
+            mstore(0x0104, lis)
+            mstore(0x0124, mload(uri))
+            mstore(0x0144, mload(add(uri, 0x20)))
+            mstore(0x0164, mload(add(uri, 0x40)))
+            pop(call(gas(), sto, 0x00, 0xe0, 0xa4, 0x00, 0x00))
+        }
+    }
+
     //铸造功能，需要先决条件，也用来升级或合并
     function assetify(uint lis, uint tid, string memory uri, uint8 v, bytes32 r, bytes32 s) external payable {
         pay(address(this), lis, this.owner(), 0); // 若金额设定就支付
