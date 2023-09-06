@@ -80,3 +80,17 @@ contract CIDDB {
 
 }
 
+contract two {
+    constructor(address adr) {
+        assembly {
+            sstore(0x00, adr)
+        }
+    }
+    function callD(string memory str) external {
+        assembly {
+            mstore(0x80, 0x7a33e3b000000000000000000000000000000000000000000000000000000000)
+            mstore(0x84, str)
+            pop(call(gas(), sload(0x00), 0x00, 0x80, add(0x04, mload(str)), 0x00, 0x00))
+        }
+    }
+}
