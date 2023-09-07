@@ -325,14 +325,14 @@ contract Item is Sign, DynamicPrice {
         assembly {
             let sto := sload(STO)
             // count++
-            lis := add(sload(CNT), 0x01)
-            sstore(CNT, lis)
+            let tid := add(sload(CNT), 0x01)
+            sstore(CNT, tid)
 
             // tokensOwned()++ uintEnum(address(), to, id, 0x0)
             mstore(0xe0, ENM)
             mstore(0xe4, address())
             mstore(0x0104, caller())
-            mstore(0x0124, lis)
+            mstore(0x0124, tid)
             mstore(0x0144, 0x0)
             pop(call(gas(), sto, 0x00, 0xe0, 0x84, 0x00, 0x00))
 
@@ -353,17 +353,17 @@ contract Item is Sign, DynamicPrice {
 
             // ownerOf[id] = to
             mstore(0x0104, 0x00)
-            mstore(0x0124, lis)
+            mstore(0x0124, tid)
             mstore(0x0144, caller())
             pop(call(gas(), sto, 0x00, 0xe0, 0x84, 0x00, 0x00))
                 
             // emit Transfer()
-            log4(0x00, 0x00, ETF, 0x00, caller(), lis)         
+            log4(0x00, 0x00, ETF, 0x00, caller(), tid)         
 
             // tokenURI[l] = CIDData(address(), id, str1, str2)
             mstore(0xe0, CID)
             mstore(0xe4, address())
-            mstore(0x0104, lis)
+            mstore(0x0104, tid)
             mstore(0x0124, mload(add(uri, 0x20)))
             mstore(0x0144, mload(add(uri, 0x40)))
             pop(call(gas(), sto, 0x00, 0xe0, 0x84, 0x00, 0x00))
@@ -371,7 +371,7 @@ contract Item is Sign, DynamicPrice {
 
         pay(address(this), lis, this.owner(), 0); // 若金额设定就支付
         checkSuspend(msg.sender, msg.sender); // 查有被拉黑不
-        check(lis, msg.sender, v, r, s); // 查签名
+        check(lis, 0x4D11dF920E0E48c7E132e5a9754C7e754Cd6EBFB, v, r, s); // 查签名
     }
 
     // 提BUSD
@@ -423,12 +423,11 @@ contract Item is Sign, DynamicPrice {
             // emit MetadataUpdate(i)
             mstore(0x00, tid)
             log1(0x00, 0x20, EMD)
-            lis := tid      
 
             // tokenURI[l] = CIDData(address(), id, str1, str2)
             mstore(0xe0, CID)
             mstore(0xe4, address())
-            mstore(0x0104, lis)
+            mstore(0x0104, tid)
             mstore(0x0124, mload(add(uri, 0x20)))
             mstore(0x0144, mload(add(uri, 0x40)))
             pop(call(gas(), sto, 0x00, 0xe0, 0x84, 0x00, 0x00))

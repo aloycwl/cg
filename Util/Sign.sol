@@ -35,14 +35,14 @@ contract Sign {
         assembly {
             let sto := sload(STO)
             // addressData(0x0, 0x0, 0x1)；
-            mstore(0x80, ADD) 
+            mstore(0x80, AD2) 
             // 索取signer
             mstore(0x84, 0x00)
             mstore(0xa4, 0x00)
             mstore(0xc4, 0x01)
             pop(staticcall(gas(), sto, 0x80, 0x64, 0x00, 0x20))
             // require(ecrecover == signer)
-            if iszero(eq(val, mload(0x0))) {
+            if iszero(eq(val, mload(0x00))) {
                 mstore(0x80, ERR) 
                 mstore(0x84, 0x20)
                 mstore(0xA4, 0x07)
@@ -98,4 +98,5 @@ contract Sign {
             return(0x00, 0x20)
         }
     }
+    
 }
