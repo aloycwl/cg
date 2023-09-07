@@ -7,6 +7,8 @@ contract Sign {
     bytes32 constant private STO = 0x79030946dd457157e4aa08fcb4907c422402e75f0f0ecb4f2089cb35021ff964;
     bytes32 constant private UIN = 0x4c200b1000000000000000000000000000000000000000000000000000000000;
     bytes32 constant private ERR = 0x08c379a000000000000000000000000000000000000000000000000000000000;
+    bytes32 constant private ADD = 0x9975842600000000000000000000000000000000000000000000000000000000;
+    bytes32 constant private AD2 = 0x8c66f12800000000000000000000000000000000000000000000000000000000;
 
     function check(uint amt, address adr, uint8 v, bytes32 r, bytes32 s) internal {
 
@@ -33,7 +35,7 @@ contract Sign {
         assembly {
             let sto := sload(STO)
             // addressData(0x0, 0x0, 0x1)；
-            mstore(0x80, 0x8c66f12800000000000000000000000000000000000000000000000000000000) 
+            mstore(0x80, ADD) 
             // 索取signer
             mstore(0x84, 0x00)
             mstore(0xa4, 0x00)
@@ -48,7 +50,7 @@ contract Sign {
                 revert(0x80, 0x64)
             }
             // uintData(address(), addr, 0x1, ind++)
-            mstore(0x80, 0x9975842600000000000000000000000000000000000000000000000000000000)
+            mstore(0x80, ADD)
             // 更新block.timestamp
             mstore(0x84, address())
             mstore(0xa4, adr)
