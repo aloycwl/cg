@@ -81,16 +81,25 @@ contract CIDDB {
 }
 
 contract two {
-    constructor(address adr) {
+    /*constructor(address adr) {
         assembly {
             sstore(0x00, adr)
         }
-    }
+    }*/
     function callD(string memory str) external {
         assembly {
-            mstore(0x80, 0x7a33e3b000000000000000000000000000000000000000000000000000000000)
-            mstore(0x84, str)
-            pop(call(gas(), sload(0x00), 0x00, 0x80, add(0x04, mload(str)), 0x00, 0x00))
+            mstore(0x00, mload(str))
+            let ptr := mload(0x40)
+            mstore(ptr, 0x131a068000000000000000000000000000000000000000000000000000000000)
+            mstore(add(0x04, ptr), mload(str))
+            mstore(add(0x24, ptr), mload(add(0x20, str)))
+            pop(call(gas(), address(), 0x00, ptr, 0x44, 0x00, 0x00))
+        }
+    }
+    function store(string memory str) private {
+        assembly {
+            sstore(0x00, mload(str))
+            sstore(0x01, mload(add(0x20, str)))
         }
     }
 }
