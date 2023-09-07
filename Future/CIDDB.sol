@@ -79,9 +79,3 @@ contract CIDDB {
     }
 
 }
-
-contract two {
-    function callD(string memory str) external returns(uint) {
-        return CIDDB(0xE5f2A565Ee0Aa9836B4c80a07C8b32aAd7978e22).store(str);
-    }
-}
