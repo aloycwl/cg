@@ -5,6 +5,8 @@ pragma abicoder v1;
 // 置对合约的访问
 contract Access {
 
+    bytes32 constant ERR = 0x08c379a000000000000000000000000000000000000000000000000000000000;
+
     // 立即授予创建者访问权限
     constructor() {
         assembly { // access[msg.sender] = 0xff;
@@ -16,7 +18,7 @@ contract Access {
     modifier onlyAccess() {
         assembly { // require(access[msg.sender] > 0, 0x1);
             if iszero(sload(caller())) {
-                mstore(0x80, 0x08c379a000000000000000000000000000000000000000000000000000000000) 
+                mstore(0x80, ERR) 
                 mstore(0x84, 0x20) 
                 mstore(0xA4, 0x0e)
                 mstore(0xC4, "Invalid access")
