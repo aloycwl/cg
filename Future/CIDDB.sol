@@ -17,21 +17,7 @@ which will return the string.
 contract CIDDB {
     bytes32 constant private CDB = 0x34b90c3fe4058816a5fd62fd112c01472c461559e126623d04d1af72d9ad437e;
 
-    function count() external view returns(uint) {
-        assembly {
-            mstore(0x00, sload(CDB))
-            return(0x00, 0x20)
-        }
-    }
-
-    function search(string memory str) external view returns(uint) {
-        assembly {
-            mstore(0x00, sload(keccak256(add(0x20, str), mload(str))))
-            return(0x00, 0x20)
-        }
-    }
-
-    function store(string memory str) external returns(uint nwc) {
+    function stringData(string memory str) external returns(uint nwc) {
         assembly {
             // if(fet[str] > 0)
             let hsh := keccak256(add(0x20, str), mload(str))
@@ -39,26 +25,22 @@ contract CIDDB {
             if gt(sload(hsh), 0x00) {
                 return(0x00, 0x20)
             }
-
             // nwc = count++
             nwc := add(sload(CDB), 0x01)
             sstore(CDB, nwc)
             sstore(hsh, nwc)
-
-            // str(length)
+            // str.length
             mstore(0x00, nwc)
             mstore(0x20, CDB)
             let ptr := keccak256(0x00, 0x40)
             sstore(ptr, mload(str))
-
             // store each line
             for { let i := 0x01 } lt(mul(0x20, sub(i, 0x01)), mload(str)) { i := add(i, 0x01) } {
                 sstore(add(ptr, i), mload(add(str, mul(i, 0x20))))
             }
         }
     }
-
-    function fetch(uint cid) external view returns(string memory) {
+    function stringData(uint cid) external view returns(string memory) {
         assembly {
             // str(length)
             mstore(0x00, cid)
@@ -67,15 +49,30 @@ contract CIDDB {
             mstore(0x80, 0x20)
             mstore(0xa0, sload(ptr))
             let cnt := 0x40
-
             // fetch each line
             for { let i := 0x01 } lt(mul(0x20, sub(i, 0x01)), sload(ptr)) { i := add(i, 0x01) } {
                 mstore(add(0x80, cnt), sload(add(ptr, i)))
                 cnt := add(0x20, cnt)
             }
-
             return(0x80, cnt)
         }
     }
 
+}
+
+contract AAA {
+    bytes32 constant private STO = 0x131a068000000000000000000000000000000000000000000000000000000000;
+    address constant private cta = 0xC3Ba5050Ec45990f76474163c5bA673c244aaECA;
+    
+    function call(string memory str) external returns(uint) {
+        assembly {
+            let ptr := mload(0x40)
+            mstore(ptr, STO)
+            mstore(add(0x04, ptr), 0x20)
+            mstore(add(0x24, ptr), mload(str))
+            mstore(add(0x44, ptr), mload(add(0x20, str)))
+            pop(call(gas(), cta, 0x00, ptr, 0x64, 0x00, 0x20))
+            return(0x00, 0x20)
+        }
+    }
 }
