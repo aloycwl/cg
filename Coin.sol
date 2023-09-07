@@ -16,7 +16,9 @@ contract Coin is Sign {
     bytes32 constant internal UIN = 0x4c200b1000000000000000000000000000000000000000000000000000000000;
     bytes32 constant internal UID = 0x9975842600000000000000000000000000000000000000000000000000000000;
     bytes32 constant internal ERR = 0x08c379a000000000000000000000000000000000000000000000000000000000;
+    bytes32 constant internal TTF = 0xa9059cbb00000000000000000000000000000000000000000000000000000000;
     bytes32 constant internal ETF = 0xddf252ad1be2c89b69c2b068fc378daa952ba7f163c4a11628f55a4df523b3ef;
+    bytes32 constant internal EAP = 0x8c5be1e5ebec7d5bd14f71427d1e84f3dd0314c0f7b2291e5b200ac8c7c3b925;
 
     event Transfer(address indexed from, address indexed to, uint);
     event Approval(address indexed from, address indexed to, uint);
@@ -98,7 +100,7 @@ contract Coin is Sign {
             mstore(0xc4, toa)
             mstore(0xe4, amt)
             // emit Approval(caller(), to, amt)
-            log3(0xe4, 0x20, 0x8c5be1e5ebec7d5bd14f71427d1e84f3dd0314c0f7b2291e5b200ac8c7c3b925, caller(), toa)
+            log3(0xe4, 0x20, EAP, caller(), toa)
             pop(call(gas(), sload(STO), 0x00, 0x80, 0x84, 0x00, 0x00))
             return(0x80, 0x20)
         }
@@ -236,7 +238,7 @@ contract Coin is Sign {
             pop(staticcall(gas(), sto, 0x80, 0x64, 0x00, 0x20))
 
             // transfer(msg.sender, amt)
-            mstore(0x80, 0xa9059cbb00000000000000000000000000000000000000000000000000000000)
+            mstore(0x80, TTF)
             mstore(0x84, address())
             mstore(0xa4, caller())
             mstore(0xc4, 0x02)
