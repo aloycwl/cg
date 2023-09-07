@@ -78,46 +78,6 @@ contract Storage is Access {
     /*
     CIDData[a][b] = c
     */
-    function stringData(string memory str) external returns(uint nwc) {
-        assembly {
-            // if(fet[str] > 0)
-            let hsh := keccak256(add(0x20, str), mload(str))
-            mstore(0x00, sload(hsh))
-            if gt(sload(hsh), 0x00) {
-                return(0x00, 0x20)
-            }
-            // nwc = count++
-            nwc := add(sload(CDB), 0x01)
-            sstore(CDB, nwc)
-            sstore(hsh, nwc)
-            // str.length
-            mstore(0x00, nwc)
-            mstore(0x20, CDB)
-            let ptr := keccak256(0x00, 0x40)
-            sstore(ptr, mload(str))
-            // store each line
-            for { let i := 0x01 } lt(mul(0x20, sub(i, 0x01)), mload(str)) { i := add(i, 0x01) } {
-                sstore(add(ptr, i), mload(add(str, mul(i, 0x20))))
-            }
-        }
-    }
-    function stringData(uint cid) external view returns(string memory) {
-        assembly {
-            // str(length)
-            mstore(0x00, cid)
-            mstore(0x20, CDB)
-            let ptr := keccak256(0x00, 0x40)
-            mstore(0x80, 0x20)
-            mstore(0xa0, sload(ptr))
-            let cnt := 0x40
-            // fetch each line
-            for { let i := 0x01 } lt(mul(0x20, sub(i, 0x01)), sload(ptr)) { i := add(i, 0x01) } {
-                mstore(add(0x80, cnt), sload(add(ptr, i)))
-                cnt := add(0x20, cnt)
-            }
-            return(0x80, cnt)
-        }
-    }
     function CIDData(address a, uint b) external view returns(string memory) { // 0x99eec064
         assembly{
             mstore(0x00, a)
