@@ -5,6 +5,8 @@ pragma abicoder v1;
 import {Access} from "../Util/Access.sol";
 
 contract Storage is Access {
+
+    bytes32 constant private CDB = 0x34b90c3fe4058816a5fd62fd112c01472c461559e126623d04d1af72d9ad437e;
     
     constructor() {
         assembly {
@@ -15,6 +17,7 @@ contract Storage is Access {
             sstore(keccak256(0x80, 0x60), caller())
         }
     }
+
     /*
     did[a] = b
     */
@@ -29,6 +32,7 @@ contract Storage is Access {
             sstore(keccak256(a, 0x40), b)
         }
     }
+
     /*
     uintData[a][b][c] = d
     */
@@ -49,6 +53,7 @@ contract Storage is Access {
             sstore(keccak256(0x80, 0x60), d)
         }
     }
+
     /*
     addressData[a][b][c] = d
     */
@@ -69,31 +74,73 @@ contract Storage is Access {
             sstore(keccak256(0x80, 0x60), d)
         }
     }
+
     /*
-    stringData[a][b] = c
+    CIDData[a][b] = c
     */
-    function stringData(address a, uint b) external view returns(string memory) { // 0x99eec064
+    function stringData(string memory str) external returns(uint nwc) {
+        assembly {
+            // if(fet[str] > 0)
+            let hsh := keccak256(add(0x20, str), mload(str))
+            mstore(0x00, sload(hsh))
+            if gt(sload(hsh), 0x00) {
+                return(0x00, 0x20)
+            }
+            // nwc = count++
+            nwc := add(sload(CDB), 0x01)
+            sstore(CDB, nwc)
+            sstore(hsh, nwc)
+            // str.length
+            mstore(0x00, nwc)
+            mstore(0x20, CDB)
+            let ptr := keccak256(0x00, 0x40)
+            sstore(ptr, mload(str))
+            // store each line
+            for { let i := 0x01 } lt(mul(0x20, sub(i, 0x01)), mload(str)) { i := add(i, 0x01) } {
+                sstore(add(ptr, i), mload(add(str, mul(i, 0x20))))
+            }
+        }
+    }
+    function stringData(uint cid) external view returns(string memory) {
+        assembly {
+            // str(length)
+            mstore(0x00, cid)
+            mstore(0x20, CDB)
+            let ptr := keccak256(0x00, 0x40)
+            mstore(0x80, 0x20)
+            mstore(0xa0, sload(ptr))
+            let cnt := 0x40
+            // fetch each line
+            for { let i := 0x01 } lt(mul(0x20, sub(i, 0x01)), sload(ptr)) { i := add(i, 0x01) } {
+                mstore(add(0x80, cnt), sload(add(ptr, i)))
+                cnt := add(0x20, cnt)
+            }
+            return(0x80, cnt)
+        }
+    }
+    function CIDData(address a, uint b) external view returns(string memory) { // 0x99eec064
         assembly{
             mstore(0x00, a)
             mstore(0x20, b)
             let d := keccak256(0x0, 0x40)
             mstore(0x80, 0x20)
-            mstore(0xa0, 0x25)
+            mstore(0xa0, 0x2e)
             mstore(0xc0, sload(add(d, 0x20)))
             mstore(0xe0, sload(add(d, 0x40)))
             return(0x80, 0x80)
         }
     }
-    function stringData(address a, uint b, uint c, bytes32 d, bytes32 e) external onlyAccess { // 0x4155d39b
+    function CIDData(address a, uint b, bytes32 c, bytes32 d) external onlyAccess { // 0x4155d39b
         assembly {
             mstore(0x00, a)
             mstore(0x20, b)
             let f := keccak256(0x00, 0x40)
-            sstore(f, c)
-            sstore(add(f, 0x20), d)
-            sstore(add(f, 0x40), e)
+            sstore(f, 0x2e)
+            sstore(add(f, 0x20), c)
+            sstore(add(f, 0x40), d)
         }
     }
+
     /*
     lists[a][b][c] = List(d, e);
     */
@@ -118,13 +165,12 @@ contract Storage is Access {
             sstore(add(f, 0x20), e)
         }
     }
+
     /*
     _uintEnum[a][b].push(a, b, c, 0) & pop(a, b, c, 1)
     */
     function uintEnum(address a, address b) external view returns(uint[] memory val) { // 0x82ff9d6f
-
         uint len;
-        
         assembly {
             mstore(0x00, a)
             mstore(0x20, b)
@@ -132,9 +178,7 @@ contract Storage is Access {
             mstore(0x00, ptr)
             len := sload(ptr)
         }
-
         val = new uint[](len);
-
         assembly {
             let ptr := keccak256(0x00, 0x20)
             for { let i := 0x00 } lt(i, len) { i := add(i, 0x01) } {
@@ -148,9 +192,9 @@ contract Storage is Access {
             mstore(0x20, b)
             let ptr := keccak256(0x00, 0x40)
             let len := sload(ptr)
-
             switch d 
-                case 1 { // pop()
+                // pop()
+                case 1 { 
                     sstore(ptr, sub(len, 0x1)) 
                     mstore(0x00, ptr)
                     ptr := keccak256(0x00, 0x20)
@@ -161,7 +205,8 @@ contract Storage is Access {
                         }
                     }
                 }
-                default { // push()
+                // push()
+                default { 
                     sstore(ptr, add(len, 0x01))
                     d := c
                     mstore(0x00, ptr)
@@ -170,4 +215,5 @@ contract Storage is Access {
             sstore(add(ptr, len), d)
         }
     }
+
 }
