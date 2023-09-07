@@ -15,12 +15,19 @@ contract CommonFunctions {
         return a.code.length;
     }
 
-    /*function getBytecode() external pure returns (bytes memory) {
+    /*function getBytecode() external pure returns(bytes memory) {
         return type(TestCreationCode).creationCode;
     }*/
 
-    function getDeployAdr(bytes memory a, uint b)public view returns (address) {
+    function getDeployAdr(bytes memory a, uint b)public view returns(address) {
         return address(uint160(uint(keccak256(abi.encodePacked(bytes1(0xff), address(this), b, keccak256(a))))));
+    }
+
+    function getLength(string memory a) public pure returns(uint) {
+        assembly {
+            mstore(0x00, mload(a))
+            return(0x00, 0x20)
+        }
     }
 
     function deploy(bytes memory a, uint b) external payable returns(address) {
