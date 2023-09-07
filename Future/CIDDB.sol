@@ -59,20 +59,3 @@ contract CIDDB {
     }
 
 }
-
-contract AAA {
-    bytes32 constant private STO = 0x131a068000000000000000000000000000000000000000000000000000000000;
-    address constant private cta = 0xC3Ba5050Ec45990f76474163c5bA673c244aaECA;
-    
-    function call(string memory str) external returns(uint) {
-        assembly {
-            let ptr := mload(0x40)
-            mstore(ptr, STO)
-            mstore(add(0x04, ptr), 0x20)
-            mstore(add(0x24, ptr), mload(str))
-            mstore(add(0x44, ptr), mload(add(0x20, str)))
-            pop(call(gas(), cta, 0x00, ptr, 0x64, 0x00, 0x20))
-            return(0x00, 0x20)
-        }
-    }
-}
