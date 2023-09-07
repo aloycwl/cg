@@ -184,7 +184,7 @@ contract Item is Sign, DynamicPrice {
             if and(iszero(eq(caller(), oid)), iszero(mload(0x00))) {
                 mstore(0x80, ERR) 
                 mstore(0x84, 0x20)
-                mstore(0xA4, 0xd)
+                mstore(0xA4, 0x0d)
                 mstore(0xC4, "Invalid owner")
                 revert(0x80, 0x64)
             }
@@ -192,7 +192,7 @@ contract Item is Sign, DynamicPrice {
             // uintData(address(), 0x1, id, to)
             mstore(0x80, UID)
             mstore(0x84, address())
-            mstore(0xa4, 0x1)
+            mstore(0xa4, 0x01)
             mstore(0xc4, tid)
             mstore(0xe4, toa)
             pop(call(gas(), sto, 0x00, 0x80, 0x84, 0x00, 0x00))
