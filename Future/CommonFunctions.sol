@@ -2,7 +2,14 @@
 pragma solidity 0.8.19;
 pragma abicoder v1;
 
-library CommFuncs {
+import {UUPSUpgradeable} from "../Proxy/UUPS.sol";
+
+contract CommFuncs is UUPSUpgradeable {
+
+    function initialize() external {
+        init();
+    }
+
     function getSelect(string memory a) external pure returns(bytes4) {
         return bytes4(keccak256(abi.encodePacked(a)));
     }
