@@ -57,12 +57,12 @@ library CommFuncs {
             uint len;
             for (uint i = a; i > 0; i /= 256) ++len;
             b = new bytes(len);
-            for (uint i = 0; i < len; ++i) b[len-i-1] = bytes1(uint8(a / (2**(8*i))));
+            for (uint i; i < len; ++i) b[len-i-1] = bytes1(uint8(a / (2**(8*i))));
         }
     }
     function cvtHex2Dec(bytes memory a) external pure returns(uint b) {
         unchecked{
-            for(uint i = 0; i < a.length; ++i) b += uint(uint8(a[i]))*(2**(8*(a.length-i-1)));
+            for(uint i; i < a.length; ++i) b += uint(uint8(a[i]))*(2**(8*(a.length-i-1)));
         }
     }
     function cvtStr2Hex(string memory a) external pure returns(bytes32) {
