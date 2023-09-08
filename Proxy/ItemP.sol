@@ -2,8 +2,8 @@
 pragma solidity 0.8.19;
 pragma abicoder v1;
 
-import {UUPSUpgradeable} from "./UUPS.sol";
-import {Item} from "../Item.sol";
+import {UUPSUpgradeable} from "../Proxy/UUPS.sol";
+import {Item} from ".././Item.sol";
 
 contract ItemP is Item, UUPSUpgradeable {
 

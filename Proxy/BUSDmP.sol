@@ -2,7 +2,7 @@
 pragma solidity 0.8.19;
 pragma abicoder v1;
 
-import {UUPSUpgradeable} from "./UUPS.sol";
+import {UUPSUpgradeable} from "../Proxy/UUPS.sol";
 import {ERC20} from "@openzeppelin/contracts/token/ERC20/ERC20.sol";
 
 contract BUSDmP is ERC20, UUPSUpgradeable {

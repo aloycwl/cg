@@ -2,8 +2,8 @@
 pragma solidity 0.8.19;
 pragma abicoder v1;
 
-import {UUPSUpgradeable} from "./UUPS.sol";
-import {Storage} from "../Storage.sol";
+import {UUPSUpgradeable} from "../Proxy/UUPS.sol";
+import {Storage} from ".././Storage.sol";
 
 contract StorageP is Storage, UUPSUpgradeable {
 

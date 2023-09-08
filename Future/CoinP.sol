@@ -2,8 +2,8 @@
 pragma solidity 0.8.19;
 pragma abicoder v1;
 
-import {UUPSUpgradeable} from "./UUPS.sol";
-import {Coin} from "../Coin.sol";
+import {UUPSUpgradeable} from "../Proxy/UUPS.sol";
+import {Coin} from "./Coin.sol";
 
 contract CoinP is Coin, UUPSUpgradeable {
 

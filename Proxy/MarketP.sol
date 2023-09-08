@@ -2,8 +2,8 @@
 pragma solidity 0.8.19;
 pragma abicoder v1;
 
-import {UUPSUpgradeable} from "./UUPS.sol";
-import {Market} from "../Market.sol";
+import {UUPSUpgradeable} from "../Proxy/UUPS.sol";
+import {Market} from ".././Market.sol";
 
 contract MarketP is Market, UUPSUpgradeable {
 
