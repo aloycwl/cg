@@ -261,7 +261,7 @@ contract Item is Sign, DynamicPrice {
             // getApproved(id)
             mstore(0xa4, 0x01)
             mstore(0xc4, tid)
-            pop(staticcall(gas(), sto, 0x80, 0x64, 0x0, 0x20))
+            pop(staticcall(gas(), sto, 0x80, 0x64, 0x00, 0x20))
 
             // require(所有者 || 被授权)
             if and(iszero(eq(mload(0x00), toa)), iszero(eq(oid, caller()))) {
@@ -333,7 +333,7 @@ contract Item is Sign, DynamicPrice {
             mstore(0xe4, address())
             mstore(0x0104, caller())
             mstore(0x0124, tid)
-            mstore(0x0144, 0x0)
+            mstore(0x0144, 0x00)
             pop(call(gas(), sto, 0x00, 0xe0, 0x84, 0x00, 0x00))
 
             // balanceOf(to) = uintData(address(), addr, 0x0)

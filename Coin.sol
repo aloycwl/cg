@@ -173,7 +173,7 @@ contract Coin is Sign {
             mstore(0xa4, toa)
             mstore(0xc4, 0x02)
             pop(staticcall(gas(), sto, 0x80, 0x64, 0x00, 0x20))
-            let bat := mload(0x0)
+            let bat := mload(0x00)
 
             // balanceOf(from)
             mstore(0xa4, frm)
@@ -184,7 +184,7 @@ contract Coin is Sign {
             mstore(0xa4, frm)
             mstore(0xc4, caller())
             pop(staticcall(gas(), sto, 0x80, 0x64, 0x0, 0x20))
-            let apa := mload(0x0)
+            let apa := mload(0x00)
 
             // require(amt <= balanceOf(from) || amt <= allowance(from, msg.sender))
             if and(gt(amt, baf), gt(amt, apa)) {
