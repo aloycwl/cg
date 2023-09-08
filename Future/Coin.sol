@@ -1,11 +1,11 @@
 // SPDX-License-Identifier: None
-pragma solidity 0.8.19;
+pragma solidity 0.8.18;
 pragma abicoder v1;
 
-import {Sign} from "../Util/Sign.sol";
+//import {ItemMgmt} from "../Util/ItemMgmt.sol";
 
 // gas: 974705
-contract Coin is Sign {
+contract Coin {
 
     bytes32 constant internal STO = 0x79030946dd457157e4aa08fcb4907c422402e75f0f0ecb4f2089cb35021ff964;
     bytes32 constant internal CNT = 0x5e423f2848a55862b54c89a4d1538a2d8aec99c1ee890237e17cdd6f0b5769d9;
@@ -108,7 +108,7 @@ contract Coin is Sign {
 
     // gas: 77637/57972
     function transfer(address toa, uint amt) external returns(bool) {
-        checkSuspend(msg.sender, toa);
+        //checkSuspend(msg.sender, toa);
         assembly {
             let sto := sload(STO)
             // uintData(address(), caller(), 0x0)
@@ -162,7 +162,7 @@ contract Coin is Sign {
 
     // gas: 85644/65979
     function transferFrom(address frm, address toa, uint amt) external returns(bool) {
-        checkSuspend(frm, toa);
+        //checkSuspend(frm, toa);
         assembly {
             let sto := sload(STO)
             // uintData(address(), from, to)
@@ -224,10 +224,10 @@ contract Coin is Sign {
         }
     }
 
-    function withdraw(uint amt, uint8 v, bytes32 r, bytes32 s) external {
+    function withdraw(uint amt/*, uint8 v, bytes32 r, bytes32 s*/) external {
         // 查拉黑和签名
-        checkSuspend(msg.sender, msg.sender);
-        check(amt, msg.sender, v, r, s);
+        //checkSuspend(msg.sender, msg.sender);
+        //check(amt, msg.sender, v, r, s);
         assembly {
             let sto := sload(STO)
             // address busd = uintData(0, 0, 2)
@@ -248,10 +248,10 @@ contract Coin is Sign {
         }
     }
 
-    function mint(address toa, uint amt, uint8 v, bytes32 r, bytes32 s) external {
+    function mint(address toa, uint amt/*, uint8 v, bytes32 r, bytes32 s*/) external {
         // 查拉黑和签名
-        checkSuspend(msg.sender, toa);
-        check(amt, toa, v, r, s);
+        //checkSuspend(msg.sender, toa);
+        //check(amt, toa, v, r, s);
         assembly {
             let sto := sload(STO)
             // balanceOf(to) = uintData(address(), 0x0, to)

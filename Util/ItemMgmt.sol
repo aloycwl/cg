@@ -1,5 +1,5 @@
 // SPDX-License-Identifier: None
-pragma solidity 0.8.19;
+pragma solidity 0.8.18;
 pragma abicoder v1;
 
 import {DynamicPrice} from "../Util/DynamicPrice.sol";
