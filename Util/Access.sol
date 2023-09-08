@@ -2,10 +2,9 @@
 pragma solidity 0.8.19;
 pragma abicoder v1;
 
-// 置对合约的访问
 contract Access {
 
-    bytes32 constant ERR = 0x08c379a000000000000000000000000000000000000000000000000000000000;
+    bytes32 constant internal ERR = 0x08c379a000000000000000000000000000000000000000000000000000000000;
 
     // 立即授予创建者访问权限
     constructor() {
