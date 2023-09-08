@@ -33,10 +33,11 @@ contract ItemMgmt is DynamicPrice {
     event ApprovalForAll(address indexed from, address indexed to, bool);
     event MetadataUpdate(uint id);
 
-    //BUSD 铸
+    // 铸NFT
     function mint(uint lis, string memory uri, uint8 v, bytes32 r, bytes32 s) public payable {
         assembly {
             let sto := sload(STO)
+            let ptr := mload(0x40)
             // count++
             let tid := add(sload(CNT), 0x01)
             sstore(CNT, tid)
@@ -68,10 +69,7 @@ contract ItemMgmt is DynamicPrice {
             mstore(0x0104, 0x00)
             mstore(0x0124, tid)
             mstore(0x0144, caller())
-            pop(call(gas(), sto, 0x00, 0xe0, 0x84, 0x00, 0x00))
-                
-            // emit Transfer()
-            log4(0x00, 0x00, ETF, 0x00, caller(), tid)         
+            pop(call(gas(), sto, 0x00, 0xe0, 0x84, 0x00, 0x00))      
 
             // tokenURI[l] = CIDData(address(), id, str1, str2)
             mstore(0xe0, CID)
@@ -80,11 +78,90 @@ contract ItemMgmt is DynamicPrice {
             mstore(0x0124, mload(add(uri, 0x20)))
             mstore(0x0144, mload(add(uri, 0x40)))
             pop(call(gas(), sto, 0x00, 0xe0, 0x84, 0x00, 0x00))
+                
+            // emit Transfer()
+            log4(0x00, 0x00, ETF, 0x00, caller(), tid)   
         }
 
         pay(address(this), lis, this.owner(), 0); // 若金额设定就支付
         checkSuspend(msg.sender, msg.sender); // 查有被拉黑不
         check(lis, 0x4D11dF920E0E48c7E132e5a9754C7e754Cd6EBFB, v, r, s); // 查签名
+    }
+    function mint2(string memory uri) public {
+        assembly {
+            let sto := sload(STO)
+            let ptr := mload(0x40)
+            // count++
+            let tid := add(sload(CNT), 0x01)
+            sstore(CNT, tid)
+
+            // tokensOwned()++ uintEnum(address(), to, id, 0x0)
+            mstore(ptr, ENM)
+            mstore(add(ptr, 0x04), address())
+            mstore(add(ptr, 0x24), caller())
+            mstore(add(ptr, 0x44), tid)
+            mstore(add(ptr, 0x64), 0x00)
+            pop(call(gas(), sto, 0x00, ptr, 0x84, 0x00, 0x00))
+        
+
+            // balanceOf(to) = uintData(address(), msg.sender, 2)
+            mstore(ptr, UIN)
+            mstore(add(ptr, 0x04), address())
+            mstore(add(ptr, 0x24), caller())
+            mstore(add(ptr, 0x44), 0x02)
+            pop(staticcall(gas(), sto, ptr, 0x64, 0x00, 0x20))
+
+            // balanceOf(msg.sender)++ uintData(address(), msg.sender, 0, balanceOf(msg.sender))
+            mstore(ptr, UID)
+            mstore(add(ptr, 0x04), address())
+            mstore(add(ptr, 0x24), caller())
+            mstore(add(ptr, 0x44), 0x02)
+            mstore(add(ptr, 0x64), add(0x01, mload(0x00)))
+            pop(call(gas(), sto, 0x00, ptr, 0x84, 0x00, 0x20))
+            
+            /*
+            if iszero(mload(0x00)) {
+                mstore(0x80, ERR) 
+                mstore(0x84, 0x20)
+                mstore(0xA4, 0x0c)
+                mstore(0xC4, "FAIL 3")
+                revert(0x80, 0x64)
+            }
+
+            // ownerOf[id] = to
+            mstore(add(ptr, 0x24), 0x00)
+            mstore(add(ptr, 0x44), tid)
+            mstore(add(ptr, 0x64), caller())
+            pop(call(gas(), sto, 0x00, ptr, 0x84, 0x00, 0x20))      
+
+            if iszero(mload(0x00)) {
+                mstore(0x80, ERR) 
+                mstore(0x84, 0x20)
+                mstore(0xA4, 0x0c)
+                mstore(0xC4, "FAIL 4")
+                revert(0x80, 0x64)
+            }
+
+            // tokenURI[l] = CIDData(address(), id, str1, str2)
+            mstore(ptr, CID)
+            mstore(add(ptr, 0x04), address())
+            mstore(add(ptr, 0x24), tid)
+            mstore(add(ptr, 0x44), mload(add(uri, 0x20)))
+            mstore(add(ptr, 0x64), mload(add(uri, 0x40)))
+            pop(call(gas(), sto, 0x00, ptr, 0x84, 0x00, 0x20))
+                
+            if iszero(mload(0x00)) {
+                mstore(0x80, ERR) 
+                mstore(0x84, 0x20)
+                mstore(0xA4, 0x0c)
+                mstore(0xC4, "FAIL 5")
+                revert(0x80, 0x64)
+            }
+
+            // emit Transfer()
+            log4(0x00, 0x00, ETF, 0x00, caller(), tid)*/
+        }
+
     }
 
     // 提BUSD
@@ -159,7 +236,7 @@ contract ItemMgmt is DynamicPrice {
         assembly {
             // uintData(address(), addr, 0x1)
             mstore(0x80, UIN) 
-            // 索取block.timestamp
+            // 索取index
             mstore(0x84, address())
             mstore(0xa4, adr)
             mstore(0xc4, 0x01)
@@ -192,7 +269,7 @@ contract ItemMgmt is DynamicPrice {
             }
             // uintData(address(), addr, 0x1, ind++)
             mstore(0x80, UID)
-            // 更新block.timestamp
+            // 更新index
             mstore(0x84, address())
             mstore(0xa4, adr)
             mstore(0xc4, 0x01)

@@ -17,21 +17,6 @@ contract Storage is Access {
     }
 
     /*
-    did[a] = b
-    */
-    function did(string memory a) external view returns(address) { // 0x31b35552
-        assembly {
-            mstore(0x00, sload(keccak256(a, 0x40)))
-            return(0x00, 0x20)
-        }
-    }
-    function did(string memory a, address b) external onlyAccess { // 0x7148bc72
-        assembly {
-            sstore(keccak256(a, 0x40), b)
-        }
-    }
-
-    /*
     uintData[a][b][c] = d
     */
     function uintData(address a, address b, address c) external view returns(uint) { // 0x4c200b10
@@ -49,6 +34,17 @@ contract Storage is Access {
             mstore(0xa0, b)
             mstore(0xc0, c)
             sstore(keccak256(0x80, 0x60), d)
+        }
+    }
+    function uintData(bytes32 a) external view returns(uint) { // 0x84d6ad61 || piloting
+        assembly{
+            mstore(0x00, sload(a))
+            return(0x00, 0x20)
+        }
+    }
+    function uintData(bytes32 a, uint b) external onlyAccess { //0x7fef772c || piloting
+        assembly {
+            sstore(a, b)
         }
     }
 
@@ -72,6 +68,17 @@ contract Storage is Access {
             sstore(keccak256(0x80, 0x60), d)
         }
     }
+    function addressData(bytes32 a) external view returns(address) { // 0x385b2e60 || piloting
+        assembly{
+            mstore(0x00, sload(a))
+            return(0x00, 0x20)
+        }
+    }
+    function addressData(bytes32 a, address b) external onlyAccess { //0x6202a118 || piloting
+        assembly {
+            sstore(a, b)
+        }
+    }
 
     /*
     CIDData[a][b] = c
@@ -83,8 +90,8 @@ contract Storage is Access {
             let d := keccak256(0x0, 0x40)
             mstore(0x80, 0x20)
             mstore(0xa0, 0x2e)
-            mstore(0xc0, sload(add(d, 0x20)))
-            mstore(0xe0, sload(add(d, 0x40)))
+            mstore(0xc0, sload(add(d, 0x01)))
+            mstore(0xe0, sload(add(d, 0x02)))
             return(0x80, 0x80)
         }
     }
@@ -94,8 +101,24 @@ contract Storage is Access {
             mstore(0x20, b)
             let f := keccak256(0x00, 0x40)
             sstore(f, 0x2e)
-            sstore(add(f, 0x20), c)
-            sstore(add(f, 0x40), d)
+            sstore(add(f, 0x01), c)
+            sstore(add(f, 0x02), d)
+        }
+    }
+    function CIDData(bytes32 a) external view returns(string memory) { // 0xbf52de05 || piloting
+        assembly{
+            mstore(0x80, 0x20)
+            mstore(0xa0, 0x2e)
+            mstore(0xc0, sload(add(a, 0x01)))
+            mstore(0xe0, sload(add(a, 0x02)))
+            return(0x80, 0x80)
+        }
+    }
+    function CIDData(bytes32 a, bytes32 b, bytes32 c) external onlyAccess { //0x08d81100 || piloting
+        assembly {
+            sstore(a, 0x2e)
+            sstore(add(a, 0x01), b)
+            sstore(add(a, 0x02), c)
         }
     }
 
@@ -109,7 +132,7 @@ contract Storage is Access {
             mstore(0xc0, c)
             let f := keccak256(0x80, 0x60)
             mstore(0x00, sload(f))
-            mstore(0x20, sload(add(f, 0x20)))
+            mstore(0x20, sload(add(f, 0x01)))
             return(0x00, 0x40)
         }
     }
@@ -120,7 +143,20 @@ contract Storage is Access {
             mstore(0x40, c)
             let f := keccak256(0x0, 0x60)
             sstore(f, d)
-            sstore(add(f, 0x20), e)
+            sstore(add(f, 0x01), e)
+        }
+    }
+    function listData(bytes32 a) external view returns(address, uint) { // 0xaf70c300 || piloting
+        assembly{
+            mstore(0x00, sload(a))
+            mstore(0x20, sload(add(a, 0x01)))
+            return(0x00, 0x40)
+        }
+    }
+    function listData(bytes32 a, address b, uint c) external onlyAccess { //0x70434fbd || piloting
+        assembly {
+            sstore(a, b)
+            sstore(add(a, 0x01), c)
         }
     }
 
@@ -171,6 +207,47 @@ contract Storage is Access {
                     ptr := keccak256(0x00, 0x20)
                 }
             sstore(add(ptr, len), d)
+        }
+    }
+    function uintEnum(bytes32 a) external view returns(uint[] memory val) { // 0x82ff9d6f
+        uint len;
+        assembly {
+            mstore(0x00, a)
+            len := sload(a)
+        }
+        val = new uint[](len);
+        assembly {
+            mstore(0x00, a)
+            let ptr := keccak256(0x00, 0x20)
+            for { let i := 0x00 } lt(i, len) { i := add(i, 0x01) } {
+                mstore(add(val, mul(add(i, 0x01), 0x20)), sload(add(ptr, i)))
+            }
+        }
+    }
+    function uintEnum(bytes32 a, uint c, uint d) external onlyAccess { // 0x6795d526
+        assembly {
+            let len := sload(a)
+            switch d 
+                // pop()
+                case 1 { 
+                    sstore(a, sub(len, 0x1)) 
+                    mstore(0x00, a)
+                    a := keccak256(0x00, 0x20)
+                    d := sload(add(a, sub(len, 0x01)))
+                    for { let i := 0x00 } lt(i, len) { i := add(i, 0x01) } {
+                        if eq(c, sload(add(a, i))) {
+                            len := i
+                        }
+                    }
+                }
+                // push()
+                default { 
+                    sstore(a, add(len, 0x01))
+                    d := c
+                    mstore(0x00, a)
+                    a := keccak256(0x00, 0x20)
+                }
+            sstore(add(a, len), d)
         }
     }
 
