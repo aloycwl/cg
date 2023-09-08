@@ -5,8 +5,6 @@ pragma abicoder v1;
 import {Access} from "../Util/Access.sol";
 
 contract Storage is Access {
-
-    bytes32 constant private CDB = 0x34b90c3fe4058816a5fd62fd112c01472c461559e126623d04d1af72d9ad437e;
     
     constructor() {
         assembly {
