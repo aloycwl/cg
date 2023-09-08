@@ -37,8 +37,8 @@ contract Market is Access, DynamicPrice {
             if iszero(eq(mload(0x0), caller())) {
                 mstore(0x80, ERR) 
                 mstore(0x84, 0x20)
-                mstore(0xA4, 0x0d)
-                mstore(0xC4, "Invalid Owner")
+                mstore(0xA4, 0x09)
+                mstore(0xC4, "not owner")
                 revert(0x80, 0x64)
             }
 
@@ -54,8 +54,8 @@ contract Market is Access, DynamicPrice {
                 if iszero(mload(0x0)) {
                     mstore(0x80, ERR) 
                     mstore(0x84, 0x20)
-                    mstore(0xA4, 0x11)
-                    mstore(0xC4, "No ApprovedForAll")
+                    mstore(0xA4, 0x0c)
+                    mstore(0xC4, "approval err")
                     revert(0x80, 0x64)
                 }
             }
@@ -92,8 +92,8 @@ contract Market is Access, DynamicPrice {
             if iszero(mload(0x20)) {
                 mstore(0x80, ERR) 
                 mstore(0x84, 0x20)
-                mstore(0xA4, 0xc)
-                mstore(0xC4, "Not for sale")
+                mstore(0xA4, 0xa)
+                mstore(0xC4, "not listed")
                 revert(0x80, 0x64)
             }
 

@@ -163,8 +163,8 @@ contract Item is ItemMgmt {
             if and(iszero(eq(caller(), oid)), iszero(mload(0x00))) {
                 mstore(0x80, ERR) 
                 mstore(0x84, 0x20)
-                mstore(0xA4, 0x0d)
-                mstore(0xC4, "Invalid owner")
+                mstore(0xA4, 0x09)
+                mstore(0xC4, "not owner")
                 revert(0x80, 0x64)
             }
 
@@ -240,7 +240,7 @@ contract Item is ItemMgmt {
                 mstore(0x80, ERR) 
                 mstore(0x84, 0x20)
                 mstore(0xA4, 0x0c)
-                mstore(0xC4, "Approval err")
+                mstore(0xC4, "approval err")
                 revert(0x80, 0x64)
             }
 
