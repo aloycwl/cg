@@ -78,7 +78,7 @@ contract Market is Access, DynamicPrice {
     // gas: 269403/292730
     function buy(address adr, uint tid) external payable {
         address frm;
-        uint amt;
+        uint fee;
 
         assembly {
             // listData(address(), contAddr, id)
@@ -104,10 +104,10 @@ contract Market is Access, DynamicPrice {
             frm := mload(0x0)
 
             // 索取费用和卖家
-            amt := sload(FEE)
+            fee := sload(FEE)
         }
         
-        pay(adr, tid, frm, amt); // 转币给卖家减费用
+        pay(adr, tid, frm, 1, fee); // 转币给卖家减费用
 
         assembly {
             // approve(msg.sender, id)
@@ -142,7 +142,7 @@ contract Market is Access, DynamicPrice {
         }
     }
 
-    function fee() external view returns (uint) {
+    function getFee() external view returns (uint) {
         assembly {
             mstore(0x00, sload(FEE))
             return(0x00, 0x20)
