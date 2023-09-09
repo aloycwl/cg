@@ -1,6 +1,5 @@
 // SPDX-License-Identifier: None
 pragma solidity 0.8.18;
-pragma abicoder v1;
 
 import {DynamicPrice} from "../Util/DynamicPrice.sol";
 
@@ -28,140 +27,68 @@ contract ItemMgmt is DynamicPrice {
     bytes32 constant internal EAA = 0x17307eab39ab6107e8899845ad3d59bd9653f200f220920489ca2b5937696c31;
     bytes32 constant internal EMD = 0xf8e1a15aba9398e019f0b49df1a4fde98ee17ae345cb5f6b5e2c27f5033e8ce7;
 
+    bytes32 constant internal UI2 = 0x84d6ad6100000000000000000000000000000000000000000000000000000000;
+
     event Transfer(address indexed from, address indexed to, uint indexed id);
     event Approval(address indexed from, address indexed to, uint indexed id);
     event ApprovalForAll(address indexed from, address indexed to, bool);
     event MetadataUpdate(uint id);
 
     // 铸NFT
-    function mint(uint lis, string memory uri, uint8 v, bytes32 r, bytes32 s) public payable {
-        assembly {
-            let sto := sload(STO)
-            let ptr := mload(0x40)
-            // count++
-            let tid := add(sload(CNT), 0x01)
-            sstore(CNT, tid)
+    function mint(uint lis, string[] memory uris, uint8 v, bytes32 r, bytes32 s) public {
+        uint url = uris.length;
+        for (uint i; i < url; i++) {
+            string memory uri = uris[i];
+            assembly {
+                let sto := sload(STO)
+                let ptr := mload(0x40)
+                // count++
+                let tid := add(sload(CNT), 0x01)
+                sstore(CNT, tid)
 
-            // tokensOwned()++ uintEnum(address(), to, id, 0x0)
-            mstore(0xe0, ENM)
-            mstore(0xe4, address())
-            mstore(0x0104, caller())
-            mstore(0x0124, tid)
-            mstore(0x0144, 0x00)
-            pop(call(gas(), sto, 0x00, 0xe0, 0x84, 0x00, 0x00))
+                // tokensOwned()++ uintEnum(address(), to, id, 0x0)
+                mstore(ptr, ENM)
+                mstore(add(ptr, 0x04), address())
+                mstore(add(ptr, 0x24), caller())
+                mstore(add(ptr, 0x44), tid)
+                mstore(add(ptr, 0x64), 0x00)
+                pop(call(gas(), sto, 0x00, ptr, 0x84, 0x00, 0x00))
 
-            // balanceOf(to) = uintData(address(), addr, 0x0)
-            mstore(0xe0, UIN)
-            mstore(0xe4, address())
-            mstore(0x0104, caller())
-            mstore(0x0124, 0x00)
-            pop(staticcall(gas(), sto, 0xe0, 0x64, 0x00, 0x20))
+                // balanceOf(to) = uintData(address(), msg.sender, 2)
+                mstore(ptr, UIN)
+                mstore(add(ptr, 0x04), address())
+                mstore(add(ptr, 0x24), caller())
+                mstore(add(ptr, 0x44), 0x02)
+                pop(staticcall(gas(), sto, ptr, 0x64, 0x00, 0x20))
+                // balanceOf(msg.sender)++ uintData(address(), msg.sender, 0, balanceOf(msg.sender))
+                mstore(ptr, UID)
+                mstore(add(ptr, 0x04), address())
+                mstore(add(ptr, 0x24), caller())
+                mstore(add(ptr, 0x44), 0x02)
+                mstore(add(ptr, 0x64), add(0x01, mload(0x00)))
+                pop(call(gas(), sto, 0x00, ptr, 0x84, 0x00, 0x00))
 
-            // balanceOf(msg.sender)++ uintData(address(), msg.sender, 0, balanceOf(msg.sender))
-            mstore(0xe0, UID)
-            mstore(0xe4, address())
-            mstore(0x0104, caller())
-            mstore(0x0124, 0x00)
-            mstore(0x0144, add(0x01, mload(0x00)))
-            pop(call(gas(), sto, 0x00, 0xe0, 0x84, 0x00, 0x00))
+                // ownerOf[id] = to
+                mstore(add(ptr, 0x24), 0x00)
+                mstore(add(ptr, 0x44), tid)
+                mstore(add(ptr, 0x64), caller())
+                pop(call(gas(), sto, 0x00, ptr, 0x84, 0x00, 0x00))      
 
-            // ownerOf[id] = to
-            mstore(0x0104, 0x00)
-            mstore(0x0124, tid)
-            mstore(0x0144, caller())
-            pop(call(gas(), sto, 0x00, 0xe0, 0x84, 0x00, 0x00))      
+                // tokenURI[l] = CIDData(address(), id, str1, str2)
+                mstore(ptr, CID)
+                mstore(add(ptr, 0x04), address())
+                mstore(add(ptr, 0x24), tid)
+                mstore(add(ptr, 0x44), mload(add(uri, 0x20)))
+                mstore(add(ptr, 0x64), mload(add(uri, 0x40)))
+                pop(call(gas(), sto, 0x00, ptr, 0x84, 0x00, 0x00))
 
-            // tokenURI[l] = CIDData(address(), id, str1, str2)
-            mstore(0xe0, CID)
-            mstore(0xe4, address())
-            mstore(0x0104, tid)
-            mstore(0x0124, mload(add(uri, 0x20)))
-            mstore(0x0144, mload(add(uri, 0x40)))
-            pop(call(gas(), sto, 0x00, 0xe0, 0x84, 0x00, 0x00))
-                
-            // emit Transfer()
-            log4(0x00, 0x00, ETF, 0x00, caller(), tid)   
+                // emit Transfer()
+                log4(0x00, 0x00, ETF, 0x00, caller(), tid)
+            }
         }
-
-        pay(address(this), lis, this.owner(), 0); // 若金额设定就支付
+        pay(address(this), lis, this.owner(), url, 0); // 若金额设定就支付
         checkSuspend(msg.sender, msg.sender); // 查有被拉黑不
-        check(lis, 0x4D11dF920E0E48c7E132e5a9754C7e754Cd6EBFB, v, r, s); // 查签名
-    }
-    function mint2(string memory uri) public {
-        assembly {
-            let sto := sload(STO)
-            let ptr := mload(0x40)
-            // count++
-            let tid := add(sload(CNT), 0x01)
-            sstore(CNT, tid)
-
-            // tokensOwned()++ uintEnum(address(), to, id, 0x0)
-            mstore(ptr, ENM)
-            mstore(add(ptr, 0x04), address())
-            mstore(add(ptr, 0x24), caller())
-            mstore(add(ptr, 0x44), tid)
-            mstore(add(ptr, 0x64), 0x00)
-            pop(call(gas(), sto, 0x00, ptr, 0x84, 0x00, 0x00))
-        
-
-            // balanceOf(to) = uintData(address(), msg.sender, 2)
-            mstore(ptr, UIN)
-            mstore(add(ptr, 0x04), address())
-            mstore(add(ptr, 0x24), caller())
-            mstore(add(ptr, 0x44), 0x02)
-            pop(staticcall(gas(), sto, ptr, 0x64, 0x00, 0x20))
-
-            // balanceOf(msg.sender)++ uintData(address(), msg.sender, 0, balanceOf(msg.sender))
-            mstore(ptr, UID)
-            mstore(add(ptr, 0x04), address())
-            mstore(add(ptr, 0x24), caller())
-            mstore(add(ptr, 0x44), 0x02)
-            mstore(add(ptr, 0x64), add(0x01, mload(0x00)))
-            pop(call(gas(), sto, 0x00, ptr, 0x84, 0x00, 0x20))
-            
-            /*
-            if iszero(mload(0x00)) {
-                mstore(0x80, ERR) 
-                mstore(0x84, 0x20)
-                mstore(0xA4, 0x0c)
-                mstore(0xC4, "FAIL 3")
-                revert(0x80, 0x64)
-            }
-
-            // ownerOf[id] = to
-            mstore(add(ptr, 0x24), 0x00)
-            mstore(add(ptr, 0x44), tid)
-            mstore(add(ptr, 0x64), caller())
-            pop(call(gas(), sto, 0x00, ptr, 0x84, 0x00, 0x20))      
-
-            if iszero(mload(0x00)) {
-                mstore(0x80, ERR) 
-                mstore(0x84, 0x20)
-                mstore(0xA4, 0x0c)
-                mstore(0xC4, "FAIL 4")
-                revert(0x80, 0x64)
-            }
-
-            // tokenURI[l] = CIDData(address(), id, str1, str2)
-            mstore(ptr, CID)
-            mstore(add(ptr, 0x04), address())
-            mstore(add(ptr, 0x24), tid)
-            mstore(add(ptr, 0x44), mload(add(uri, 0x20)))
-            mstore(add(ptr, 0x64), mload(add(uri, 0x40)))
-            pop(call(gas(), sto, 0x00, ptr, 0x84, 0x00, 0x20))
-                
-            if iszero(mload(0x00)) {
-                mstore(0x80, ERR) 
-                mstore(0x84, 0x20)
-                mstore(0xA4, 0x0c)
-                mstore(0xC4, "FAIL 5")
-                revert(0x80, 0x64)
-            }
-
-            // emit Transfer()
-            log4(0x00, 0x00, ETF, 0x00, caller(), tid)*/
-        }
-
+        check(lis, msg.sender, v, r, s); // 查签名
     }
 
     // 提BUSD
@@ -223,7 +150,7 @@ contract ItemMgmt is DynamicPrice {
             pop(call(gas(), sto, 0x00, 0xe0, 0x84, 0x00, 0x00))
         }
         
-        pay(address(this), lis, this.owner(), 0); // 若金额设定就支付
+        pay(address(this), lis, this.owner(), 1, 0); // 若金额设定就支付
         checkSuspend(msg.sender, msg.sender); // 查有被拉黑不
         check(lis, msg.sender, v, r, s); // 查签名
     }

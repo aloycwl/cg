@@ -22,7 +22,7 @@ contract DynamicPrice {
         }
     }
 
-    function pay(address adr, uint lst, address toa, uint fee) internal {
+    function pay(address adr, uint lst, address toa, uint qty, uint fee) internal {
         assembly {
             // listData(address,address,uint256)
             mstore(0x80, LI2) 
@@ -31,10 +31,10 @@ contract DynamicPrice {
             mstore(0xc4, lst)
             pop(staticcall(gas(), sload(STO), 0x80, 0x64, 0x00, 0x40))
             let tka := mload(0x00)
-            let amt := mload(0x20)
+            let amt := mul(qty, mload(0x20))
             // 有价格才执行
             if gt(tka, 0x00) {
-                fee := div(mul(amt, sub(0x2710, fee)), 0x2710)
+                fee := mul(qty, div(mul(amt, sub(0x2710, fee)), 0x2710))
                 // 转货币
                 if eq(tka, 0x01) {
                     // require(msg.value > amt)
@@ -45,7 +45,7 @@ contract DynamicPrice {
                         mstore(0xC4, "coin err")
                         revert(0x80, 0x64)
                     }
-                    pop(call(gas(), toa, fee, 0x00, 0x00, 0x00, 0x00))
+                    pop(call(gas(), toa, sub(amt, fee), 0x00, 0x00, 0x00, 0x00))
                     pop(call(gas(), sload(OWN), selfbalance(), 0x00, 0x00, 0x00, 0x00))
                 }
                 // 转代币

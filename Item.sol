@@ -1,6 +1,5 @@
 // SPDX-License-Identifier: None
 pragma solidity 0.8.18;
-pragma abicoder v1;
 
 import {ItemMgmt} from "../Util/ItemMgmt.sol";
 
@@ -62,12 +61,13 @@ contract Item is ItemMgmt {
 
     function balanceOf(address adr) external view returns (uint) {
         assembly {
-            // uintData(address(), addr, 0x0)
-            mstore(0x80, UIN)
-            mstore(0x84, address())
-            mstore(0xa4, adr)
-            mstore(0xc4, 0x00)
-            pop(staticcall(gas(), sload(STO), 0x80, 0x64, 0x00, 0x20))
+            // uintData(address(this), adr, 2)
+            mstore(0x80, address())
+            mstore(0xa0, adr)
+            mstore(0xc0, 0x02)
+            mstore(0xe0, UI2)
+            mstore(0xe4, keccak256(0x80, 0x60))
+            pop(staticcall(gas(), sload(STO), 0xe0, 0x24, 0x00, 0x20))
             return(0x00, 0x20)
         }
     }
@@ -221,12 +221,13 @@ contract Item is ItemMgmt {
 
             // balanceOf(oid)
             mstore(0xa4, oid)
-            mstore(0xc4, 0x00)
+            mstore(0xc4, 0x02)
             pop(staticcall(gas(), sto, 0x80, 0x64, 0x00, 0x20))
             let baf := mload(0x00)
 
             // balanceOf(to)
             mstore(0xa4, toa)
+            mstore(0xc4, 0x02)
             pop(staticcall(gas(), sto, 0x80, 0x64, 0x00, 0x20))
             let bat := mload(0x00)
 
@@ -275,14 +276,15 @@ contract Item is ItemMgmt {
 
             // --balanceOf(oid)
             mstore(0xa4, oid)
-            mstore(0xc4, 0x00)
+            mstore(0xc4, 0x02)
             mstore(0xe4, sub(baf, 0x01))
             pop(call(gas(), sto, 0x00, 0x80, 0x84, 0x00, 0x00))
 
             // ++balanceOf(to)
             if gt(toa, 0x00) {
                 mstore(0xa4, toa)
-                mstore(0xe4, add(0x01, bat))
+                mstore(0xc4, 0x02)
+                mstore(0xe4, add(bat, 0x01))
                 pop(call(gas(), sto, 0x00, 0x80, 0x84, 0x00, 0x00))
             }
 
@@ -295,7 +297,9 @@ contract Item is ItemMgmt {
     // 用transferFrom烧毁再mint多一次
     function merge(uint[] memory ids, uint lis, string memory uri, uint8 v, bytes32 r, bytes32 s) external payable {
         for(uint i; i < ids.length; i++) transferFrom(address(0x00), address(0x00), ids[i]);
-        mint(lis, uri, v, r, s);
+        string[] memory ur2 = new string[](1);
+        ur2[0] = uri;
+        mint(lis, ur2, v, r, s);
     }
     
 }
