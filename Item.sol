@@ -269,19 +269,22 @@ contract Item is ItemMgmt {
                 revert(0x80, 0x64)
             }
 
-            // tokensOwned()-- intEnum(address(), oid, id, 1)
-            mstore(0x80, ENM)
-            mstore(0x84, address())
-            mstore(0xa4, oid)
-            mstore(0xc4, tid)
-            mstore(0xe4, 0x01)
-            pop(call(gas(), sto, 0x00, 0x80, 0x84, 0x00, 0x00))
+            // tokensOwned()-- uintPop(bytes32, id)
+            mstore(0x00, address())
+            mstore(0x20, oid)
+            mstore(0x80, POP)
+            mstore(0x84, keccak256(0x00, 0x40))
+            mstore(0xa4, tid)
+            pop(call(gas(), sto, 0x00, 0x80, 0x44, 0x00, 0x00))
 
-            // tokensOwned()++
+            // tokensOwned()++ uintPush(bytes32, id)
             if gt(toa, 0x00) {
-                mstore(0xa4, toa)
-                mstore(0xe4, 0x00)
-                pop(call(gas(), sto, 0x00, 0x80, 0x84, 0x00, 0x00))
+                mstore(0x00, address())
+                mstore(0x20, toa)
+                mstore(0x80, PUS)
+                mstore(0x84, keccak256(0x00, 0x40))
+                mstore(0xa4, tid)
+                pop(call(gas(), sto, 0x00, 0x80, 0x44, 0x00, 0x00))
             }
 
             // approval[id] = uintData(address(), 1, id, 0) = 0

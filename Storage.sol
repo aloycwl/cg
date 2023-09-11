@@ -158,55 +158,9 @@ contract Storage is Access {
     }
 
     /*
-    _uintEnum[a][b].push(a, b, c, 0) & pop(a, b, c, 1)
+    uintEnum[a][b].push(a, b) & pop(a, b)
     */
-    function uintEnum(address a, address b) external view returns(uint[] memory val) { // 0x82ff9d6f
-        uint len;
-        assembly {
-            mstore(0x00, a)
-            mstore(0x20, b)
-            let ptr := keccak256(0x00, 0x40)
-            mstore(0x00, ptr)
-            len := sload(ptr)
-        }
-        val = new uint[](len);
-        assembly {
-            let ptr := keccak256(0x00, 0x20)
-            for { let i := 0x00 } lt(i, len) { i := add(i, 0x01) } {
-                mstore(add(val, mul(add(i, 0x01), 0x20)), sload(add(ptr, i)))
-            }
-        }
-    }
-    function uintEnum(address a, address b, uint c, uint d) external onlyAccess { // 0x6795d526
-        assembly {
-            mstore(0x00, a)
-            mstore(0x20, b)
-            let ptr := keccak256(0x00, 0x40)
-            let len := sload(ptr)
-            switch d 
-                // pop()
-                case 1 { 
-                    sstore(ptr, sub(len, 0x1)) 
-                    mstore(0x00, ptr)
-                    ptr := keccak256(0x00, 0x20)
-                    d := sload(add(ptr, sub(len, 0x01)))
-                    for { let i := 0x00 } lt(i, len) { i := add(i, 0x01) } {
-                        if eq(c, sload(add(ptr, i))) {
-                            len := i
-                        }
-                    }
-                }
-                // push()
-                default { 
-                    sstore(ptr, add(len, 0x01))
-                    d := c
-                    mstore(0x00, ptr)
-                    ptr := keccak256(0x00, 0x20)
-                }
-            sstore(add(ptr, len), d)
-        }
-    }
-    function uintEnum(bytes32 a) external view returns(uint[] memory) { // 0x650baf60 | piloting
+    function uintEnum(bytes32 a) external view returns(uint[] memory) { // 0x650baf60
         assembly { 
             let len := sload(a) // 设长度
             mstore(0x80, 0x20)
@@ -217,7 +171,7 @@ contract Storage is Access {
             return(0x80, mul(add(len, 0x02), 0x20))
         }
     }
-    function uintPop(bytes32 a, uint b) external onlyAccess { // 0x40061633 | piloting
+    function uintPop(bytes32 a, uint b) external onlyAccess { // 0x40061633
         assembly {
             let len := sload(a)
             sstore(a, sub(len, 0x01))
@@ -229,7 +183,7 @@ contract Storage is Access {
             }
         }
     }
-    function uintPush(bytes32 a, uint b) external onlyAccess { // 0x7cc553f4 | piloting
+    function uintPush(bytes32 a, uint b) external onlyAccess { // 0x7cc553f4
         assembly {
             let len := add(sload(a), 0x01)
             sstore(a, len)
