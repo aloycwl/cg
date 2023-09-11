@@ -79,15 +79,6 @@ contract CommFuncs is UUPSUpgradeable {
         }
     }
 
-    function KEKAddr(address a, address b) external pure returns(bytes32) {
-        assembly {
-            mstore(0x00, a)
-            mstore(0x20, b)
-            mstore(0x00, keccak256(0x00, 0x40))
-            return(0x00, 0x20)
-        }
-    }
-
 }
 
 /*
