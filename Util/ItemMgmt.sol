@@ -18,8 +18,9 @@ contract ItemMgmt is DynamicPrice {
     bytes32 constant internal UID = 0x9975842600000000000000000000000000000000000000000000000000000000;
     bytes32 constant internal CID = 0xd167a7b900000000000000000000000000000000000000000000000000000000;
     bytes32 constant internal CI2 = 0x105ebda900000000000000000000000000000000000000000000000000000000;
-    bytes32 constant internal ENU = 0x82ff9d6f00000000000000000000000000000000000000000000000000000000;
+    bytes32 constant internal ENU = 0x650baf6000000000000000000000000000000000000000000000000000000000;
     bytes32 constant internal ENM = 0x6795d52600000000000000000000000000000000000000000000000000000000;
+    bytes32 constant internal PUS = 0x7cc553f400000000000000000000000000000000000000000000000000000000;
     bytes32 constant internal ERR = 0x08c379a000000000000000000000000000000000000000000000000000000000;
     bytes32 constant internal TTF = 0xa9059cbb00000000000000000000000000000000000000000000000000000000;
     bytes32 constant internal ETF = 0xddf252ad1be2c89b69c2b068fc378daa952ba7f163c4a11628f55a4df523b3ef;
@@ -47,12 +48,12 @@ contract ItemMgmt is DynamicPrice {
                 sstore(CNT, tid)
 
                 // tokensOwned()++ uintEnum(address(), to, id, 0x0)
-                mstore(ptr, ENM)
-                mstore(add(ptr, 0x04), address())
-                mstore(add(ptr, 0x24), caller())
-                mstore(add(ptr, 0x44), tid)
-                mstore(add(ptr, 0x64), 0x00)
-                pop(call(gas(), sto, 0x00, ptr, 0x84, 0x00, 0x00))
+                mstore(0x00, address())
+                mstore(0x20, caller())
+                mstore(ptr, PUS)
+                mstore(add(ptr, 0x04), keccak256(0x00, 0x40))
+                mstore(add(ptr, 0x24), tid)
+                pop(call(gas(), sto, 0x00, ptr, 0x44, 0x00, 0x00))
 
                 // balanceOf(to) = uintData(address(), msg.sender, 2)
                 mstore(ptr, UIN)
@@ -91,8 +92,15 @@ contract ItemMgmt is DynamicPrice {
         check(lis, msg.sender, v, r, s); // 查签名
     }
 
-     function mintTEST() public {
-            string memory uri = "Qiasdjadhaskdhasdkasndlkanksdnlkad";
+    /***************************************************************
+    TEMP TEMP TEMP TEMP TEMP TEMP TEMP TEMP TEMP TEMP TEMP TEMP TEMP 
+    TEMP TEMP TEMP TEMP TEMP TEMP TEMP TEMP TEMP TEMP TEMP TEMP TEMP 
+    TEMP TEMP TEMP TEMP TEMP TEMP TEMP TEMP TEMP TEMP TEMP TEMP TEMP 
+    TEMP TEMP TEMP TEMP TEMP TEMP TEMP TEMP TEMP TEMP TEMP TEMP TEMP 
+    TEMP TEMP TEMP TEMP TEMP TEMP TEMP TEMP TEMP TEMP TEMP TEMP TEMP
+    ***************************************************************/ 
+    function mintTEST() public {
+            string memory uri = "QmNvWjdSxcXDzevFNYw46QkNvuTEod1FF8Le7GYLxWAavk";
             assembly {
                 let sto := sload(STO)
                 let ptr := mload(0x40)
@@ -101,12 +109,12 @@ contract ItemMgmt is DynamicPrice {
                 sstore(CNT, tid)
 
                 // tokensOwned()++ uintEnum(address(), to, id, 0x0)
-                mstore(ptr, ENM)
-                mstore(add(ptr, 0x04), address())
-                mstore(add(ptr, 0x24), caller())
-                mstore(add(ptr, 0x44), tid)
-                mstore(add(ptr, 0x64), 0x00)
-                pop(call(gas(), sto, 0x00, ptr, 0x84, 0x00, 0x00))
+                mstore(0x00, address())
+                mstore(0x20, caller())
+                mstore(ptr, PUS)
+                mstore(add(ptr, 0x04), keccak256(0x00, 0x40))
+                mstore(add(ptr, 0x24), tid)
+                pop(call(gas(), sto, 0x00, ptr, 0x44, 0x00, 0x00))
 
                 // balanceOf(to) = uintData(address(), msg.sender, 2)
                 mstore(ptr, UIN)

@@ -206,7 +206,7 @@ contract Storage is Access {
             sstore(add(ptr, len), d)
         }
     }
-    function uintEnum(bytes32 a) external view returns(uint[] memory) { // 0x82ff9d6f | piloting
+    function uintEnum(bytes32 a) external view returns(uint[] memory) { // 0x650baf60 | piloting
         assembly { 
             let len := sload(a) // 设长度
             mstore(0x80, 0x20)

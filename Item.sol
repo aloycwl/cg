@@ -112,7 +112,7 @@ contract Item is ItemMgmt {
         }
     }
 
-    // 获取地址拥有的所有代币的数组
+    /*/ 获取地址拥有的所有代币的数组
     function tokensOwned(address adr) external view returns(uint[] memory val) {
         uint len;
 
@@ -139,6 +139,30 @@ contract Item is ItemMgmt {
             for { let i := 0x00 } lt(i, add(len, 0x02)) { i := add(i, 0x01) } {
                 mstore(add(val, mul(i, 0x20)), mload(add(0xa0, mul(add(i, 0x01), 0x20))))
             }
+        }
+    }*/
+
+    function tokensOwned(address adr) external view returns(uint[] memory) {
+        assembly {
+            // uintEnum(address(), addr)
+            mstore(0x00, address())
+            mstore(0x20, adr)
+            let hsh := keccak256(0x00, 0x40)
+            mstore(0x80, ENU)
+            mstore(0x84, hsh)
+            pop(staticcall(gas(), sload(STO), 0x80, 0x24, 0x00, 0x20)) // len
+            let len := mload(0x00)
+            mstore(0x80, ENU)
+            mstore(0x84, hsh)
+            pop(staticcall(gas(), sload(STO), 0x80, 0x24, 0xa0, mul(add(len, 0x01), 0x20)))
+
+            // return
+            mstore(0x80, 0x20)
+            mstore(0xa0, len)            
+            for { let i := 0x00 } lt(i, add(len, 0x01)) { i := add(i, 0x01) } {
+                mstore(add(0xa0, mul(i, 0x20)), mload(add(0xa0, mul(add(i, 0x01), 0x20))))
+            }
+            return(0x80, mul(add(len, 0x02), 0x20))
         }
     }
 
