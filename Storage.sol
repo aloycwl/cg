@@ -8,11 +8,8 @@ contract Storage is Access {
     
     constructor() {
         assembly {
-            //设置signer
-            mstore(0x80, 0x00)
-            mstore(0xa0, 0x00)
-            mstore(0xc0, 0x01)
-            sstore(keccak256(0x80, 0x60), caller())
+            //设置signer [0][0][1]
+            sstore(0xcbfe4baa920060fc34aa65135b74b83fa81df36f6e21d90c8301c8810d2c89d9, caller())
         }
     }
 
@@ -36,13 +33,13 @@ contract Storage is Access {
             sstore(keccak256(0x80, 0x60), d)
         }
     }
-    function uintData(bytes32 a) external view returns(uint) { // 0x84d6ad61 || piloting
+    function uintData(bytes32 a) external view returns(uint) { // 0x84d6ad61 | piloting
         assembly{
             mstore(0x00, sload(a))
             return(0x00, 0x20)
         }
     }
-    function uintData(bytes32 a, uint b) external onlyAccess { //0x7fef772c || piloting
+    function uintData(bytes32 a, uint b) external onlyAccess { //0x7fef772c | piloting
         assembly {
             sstore(a, b)
         }
@@ -68,13 +65,13 @@ contract Storage is Access {
             sstore(keccak256(0x80, 0x60), d)
         }
     }
-    function addressData(bytes32 a) external view returns(address) { // 0x385b2e60 || piloting
+    function addressData(bytes32 a) external view returns(address) { // 0x385b2e60 | piloting
         assembly{
             mstore(0x00, sload(a))
             return(0x00, 0x20)
         }
     }
-    function addressData(bytes32 a, address b) external onlyAccess { //0x6202a118 || piloting
+    function addressData(bytes32 a, address b) external onlyAccess { //0x6202a118 | piloting
         assembly {
             sstore(a, b)
         }
@@ -105,7 +102,7 @@ contract Storage is Access {
             sstore(add(f, 0x02), d)
         }
     }
-    function CIDData(bytes32 a) external view returns(string memory) { // 0xbf52de05 || piloting
+    function CIDData(bytes32 a) external view returns(string memory) { // 0xbf52de05 | piloting
         assembly{
             mstore(0x80, 0x20)
             mstore(0xa0, 0x2e)
@@ -114,7 +111,7 @@ contract Storage is Access {
             return(0x80, 0x80)
         }
     }
-    function CIDData(bytes32 a, bytes32 b, bytes32 c) external onlyAccess { //0x08d81100 || piloting
+    function CIDData(bytes32 a, bytes32 b, bytes32 c) external onlyAccess { //0x08d81100 | piloting
         assembly {
             sstore(a, 0x2e)
             sstore(add(a, 0x01), b)
@@ -146,14 +143,14 @@ contract Storage is Access {
             sstore(add(f, 0x01), e)
         }
     }
-    function listData(bytes32 a) external view returns(address, uint) { // 0xaf70c300 || piloting
+    function listData(bytes32 a) external view returns(address, uint) { // 0xaf70c300 | piloting
         assembly{
             mstore(0x00, sload(a))
             mstore(0x20, sload(add(a, 0x01)))
             return(0x00, 0x40)
         }
     }
-    function listData(bytes32 a, address b, uint c) external onlyAccess { //0x70434fbd || piloting
+    function listData(bytes32 a, address b, uint c) external onlyAccess { //0x70434fbd | piloting
         assembly {
             sstore(a, b)
             sstore(add(a, 0x01), c)
@@ -209,7 +206,7 @@ contract Storage is Access {
             sstore(add(ptr, len), d)
         }
     }
-    function uintEnum(bytes32 a) external view returns(uint[] memory) { // 0x82ff9d6f
+    function uintEnum(bytes32 a) external view returns(uint[] memory) { // 0x82ff9d6f | piloting
         assembly { 
             let len := sload(a) // 设长度
             mstore(0x80, 0x20)
@@ -220,7 +217,7 @@ contract Storage is Access {
             return(0x80, mul(add(len, 0x02), 0x20))
         }
     }
-    function uintPop(bytes32 a, uint b) external onlyAccess { // 0x40061633
+    function uintPop(bytes32 a, uint b) external onlyAccess { // 0x40061633 | piloting
         assembly {
             let len := sload(a)
             sstore(a, sub(len, 0x01))
@@ -232,7 +229,7 @@ contract Storage is Access {
             }
         }
     }
-    function uintPush(bytes32 a, uint b) external onlyAccess { // 0x7cc553f4
+    function uintPush(bytes32 a, uint b) external onlyAccess { // 0x7cc553f4 | piloting
         assembly {
             let len := add(sload(a), 0x01)
             sstore(a, len)
