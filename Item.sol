@@ -122,7 +122,7 @@ contract Item is ItemMgmt {
             mstore(0x80, ENU)
             mstore(0x84, address())
             mstore(0xa4, adr)
-            pop(staticcall(gas(), sload(STO), 0x80, 0x84, 0x00, 0x40))
+            pop(staticcall(gas(), sload(STO), 0x80, 0x44, 0x00, 0x40))
             len := mload(0x20)
         }
 

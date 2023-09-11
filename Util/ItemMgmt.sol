@@ -91,6 +91,56 @@ contract ItemMgmt is DynamicPrice {
         check(lis, msg.sender, v, r, s); // 查签名
     }
 
+     function mintTEST() public {
+            string memory uri = "Qiasdjadhaskdhasdkasndlkanksdnlkad";
+            assembly {
+                let sto := sload(STO)
+                let ptr := mload(0x40)
+                // count++
+                let tid := add(sload(CNT), 0x01)
+                sstore(CNT, tid)
+
+                // tokensOwned()++ uintEnum(address(), to, id, 0x0)
+                mstore(ptr, ENM)
+                mstore(add(ptr, 0x04), address())
+                mstore(add(ptr, 0x24), caller())
+                mstore(add(ptr, 0x44), tid)
+                mstore(add(ptr, 0x64), 0x00)
+                pop(call(gas(), sto, 0x00, ptr, 0x84, 0x00, 0x00))
+
+                // balanceOf(to) = uintData(address(), msg.sender, 2)
+                mstore(ptr, UIN)
+                mstore(add(ptr, 0x04), address())
+                mstore(add(ptr, 0x24), caller())
+                mstore(add(ptr, 0x44), 0x02)
+                pop(staticcall(gas(), sto, ptr, 0x64, 0x00, 0x20))
+                // balanceOf(msg.sender)++ uintData(address(), msg.sender, 0, balanceOf(msg.sender))
+                mstore(ptr, UID)
+                mstore(add(ptr, 0x04), address())
+                mstore(add(ptr, 0x24), caller())
+                mstore(add(ptr, 0x44), 0x02)
+                mstore(add(ptr, 0x64), add(0x01, mload(0x00)))
+                pop(call(gas(), sto, 0x00, ptr, 0x84, 0x00, 0x00))
+
+                // ownerOf[id] = to
+                mstore(add(ptr, 0x24), 0x00)
+                mstore(add(ptr, 0x44), tid)
+                mstore(add(ptr, 0x64), caller())
+                pop(call(gas(), sto, 0x00, ptr, 0x84, 0x00, 0x00))      
+
+                // tokenURI[l] = CIDData(address(), id, str1, str2)
+                mstore(ptr, CID)
+                mstore(add(ptr, 0x04), address())
+                mstore(add(ptr, 0x24), tid)
+                mstore(add(ptr, 0x44), mload(add(uri, 0x20)))
+                mstore(add(ptr, 0x64), mload(add(uri, 0x40)))
+                pop(call(gas(), sto, 0x00, ptr, 0x84, 0x00, 0x00))
+
+                // emit Transfer()
+                log4(0x00, 0x00, ETF, 0x00, caller(), tid)
+        }
+    }
+
     // 提BUSD
     function withdraw(uint amt, uint8 v, bytes32 r, bytes32 s) external {
         assembly {

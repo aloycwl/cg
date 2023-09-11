@@ -209,45 +209,34 @@ contract Storage is Access {
             sstore(add(ptr, len), d)
         }
     }
-    function uintEnum(bytes32 a) external view returns(uint[] memory val) { // 0x82ff9d6f
-        uint len;
-        assembly {
-            mstore(0x00, a)
-            len := sload(a)
+    function uintEnum(bytes32 a) external view returns(uint[] memory) { // 0x82ff9d6f
+        assembly { 
+            let len := sload(a) // 设长度
+            mstore(0x80, 0x20)
+            mstore(0xa0, len)
+            for { let i := 0x00 } lt(i, add(len, 0x01)) { i := add(i, 0x01) } {
+                mstore(add(0xa0, mul(i, 0x20)), sload(add(a, i)))
+            }
+            return(0x80, mul(add(len, 0x02), 0x20))
         }
-        val = new uint[](len);
+    }
+    function uintPop(bytes32 a, uint b) external onlyAccess { // 0x40061633
         assembly {
-            mstore(0x00, a)
-            let ptr := keccak256(0x00, 0x20)
-            for { let i := 0x00 } lt(i, len) { i := add(i, 0x01) } {
-                mstore(add(val, mul(add(i, 0x01), 0x20)), sload(add(ptr, i)))
+            let len := sload(a)
+            sstore(a, sub(len, 0x01))
+            for { let i := 0x01 } lt(i, add(len, 0x01)) { i := add(i, 0x01) } {
+                if eq(b, sload(add(a, i))) {
+                    sstore(add(a, i), sload(add(a, len))) // 和最后一个值替换
+                    break
+                }
             }
         }
     }
-    function uintEnum(bytes32 a, uint c, uint d) external onlyAccess { // 0x6795d526
+    function uintPush(bytes32 a, uint b) external onlyAccess { // 0x7cc553f4
         assembly {
-            let len := sload(a)
-            switch d 
-                // pop()
-                case 1 { 
-                    sstore(a, sub(len, 0x1)) 
-                    mstore(0x00, a)
-                    a := keccak256(0x00, 0x20)
-                    d := sload(add(a, sub(len, 0x01)))
-                    for { let i := 0x00 } lt(i, len) { i := add(i, 0x01) } {
-                        if eq(c, sload(add(a, i))) {
-                            len := i
-                        }
-                    }
-                }
-                // push()
-                default { 
-                    sstore(a, add(len, 0x01))
-                    d := c
-                    mstore(0x00, a)
-                    a := keccak256(0x00, 0x20)
-                }
-            sstore(add(a, len), d)
+            let len := add(sload(a), 0x01)
+            sstore(a, len)
+            sstore(add(a, len), b)
         }
     }
 
