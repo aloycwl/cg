@@ -4,7 +4,7 @@ pragma abicoder v1;
 
 import {UUPSUpgradeable} from "../Proxy/UUPS.sol";
 
-contract CommFuncs is UUPSUpgradeable {
+contract Funcs is UUPSUpgradeable {
 
     function initialize() external {
         init();
@@ -15,6 +15,13 @@ contract CommFuncs is UUPSUpgradeable {
     }
     function getKeccak(string memory a) external pure returns(bytes32) {
         return keccak256(abi.encodePacked(a));
+    }
+    function getKeccak(uint a) external pure returns(bytes32) {
+        assembly{
+            mstore(0x00, a)
+            mstore(0x00, keccak256(0x00, 0x20))
+            return(0x00, 0x20)
+        }
     }
 
     function getCntAdr(bytes memory a, uint b) external view returns(address) {
@@ -75,6 +82,16 @@ contract CommFuncs is UUPSUpgradeable {
     function cvtStr2Hex(string memory a) external pure returns(bytes32) {
         assembly {
             mstore(0x00, mload(add(a, 0x20)))
+            return(0x00, 0x20)
+        }
+    }
+
+
+    function TEST(bytes32 a, uint b) external pure returns(bytes32) {
+        assembly{
+            mstore(0x00, a)
+            mstore(0x20, b)
+            mstore(0x00, keccak256(0x00, 0x40))
             return(0x00, 0x20)
         }
     }

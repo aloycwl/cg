@@ -16,7 +16,7 @@ contract ItemMgmt is DynamicPrice {
     bytes32 constant internal ADR = 0x8c66f12800000000000000000000000000000000000000000000000000000000;
     bytes32 constant internal UIN = 0x4c200b1000000000000000000000000000000000000000000000000000000000;
     bytes32 constant internal UID = 0x9975842600000000000000000000000000000000000000000000000000000000;
-    //bytes32 constant internal CID = 0xd167a7b900000000000000000000000000000000000000000000000000000000;
+    bytes32 constant internal CID = 0xd167a7b900000000000000000000000000000000000000000000000000000000;
     bytes32 constant internal CI2 = 0x105ebda900000000000000000000000000000000000000000000000000000000;
     bytes32 constant internal ENU = 0x650baf6000000000000000000000000000000000000000000000000000000000;
     bytes32 constant internal PUS = 0x7cc553f400000000000000000000000000000000000000000000000000000000;
@@ -31,8 +31,7 @@ contract ItemMgmt is DynamicPrice {
     bytes32 constant internal UI1 = 0x84d6ad6100000000000000000000000000000000000000000000000000000000;
 
     // 新合约得换
-    bytes32 constant internal TKO = 0x2b5cce509006327e7e57324c5318a79e6592448a14348d903d7e82e569af36cb;
-    bytes32 constant internal APP = 0x240b7221e3cefc50f1f977e26ab6b0c0225e46cac4fa22bc3cd360265249f2dd;
+    bytes32 constant internal ONO = 0x4c53ea35e789059b792e27d2fc83cc906ed9baceac2414c5e15a3de3bb205c6d;
 
     event Transfer(address indexed from, address indexed to, uint indexed id);
     event Approval(address indexed from, address indexed to, uint indexed id);
@@ -45,22 +44,49 @@ contract ItemMgmt is DynamicPrice {
         for (uint i; i < url; i++) {
             string memory uri = uris[i];
             assembly {
-                let tid := add(sload(CNT), 0x01) // count++
+                let sto := sload(STO)
+                let ptr := mload(0x40)
+                // count++
+                let tid := add(sload(CNT), 0x01)
                 sstore(CNT, tid)
 
-                // balanceOf(msg.sender)++
-                mstore(0x00, caller())
-                let tmp := keccak256(0x00, 0x20)
-                sstore(tmp, add(sload(tmp), 0x01))
+                // tokensOwned()++ uintEnum(address(), to, id, 0x0)
+                mstore(0x00, address())
+                mstore(0x20, caller())
+                mstore(ptr, PUS)
+                mstore(add(ptr, 0x04), keccak256(0x00, 0x40))
+                mstore(add(ptr, 0x24), tid)
+                pop(call(gas(), sto, 0x00, ptr, 0x44, 0x00, 0x00))
 
-                // ownerOf[tid] = msg.sender
-                sstore(tid, caller())
+                // balanceOf(to) = uintData(address(), msg.sender, 2)
+                mstore(ptr, UIN)
+                mstore(add(ptr, 0x04), address())
+                mstore(add(ptr, 0x24), caller())
+                mstore(add(ptr, 0x44), 0x02)
+                pop(staticcall(gas(), sto, ptr, 0x64, 0x00, 0x20))
+                // balanceOf(msg.sender)++ uintData(address(), msg.sender, 0, balanceOf(msg.sender))
+                mstore(ptr, UID)
+                mstore(add(ptr, 0x04), address())
+                mstore(add(ptr, 0x24), caller())
+                mstore(add(ptr, 0x44), 0x02)
+                mstore(add(ptr, 0x64), add(0x01, mload(0x00)))
+                pop(call(gas(), sto, 0x00, ptr, 0x84, 0x00, 0x00))
 
-                // tokenURI[tid] = uri
-                mstore(0x00, tid)
-                tmp := keccak256(0x00, 0x20)
-                sstore(tmp, mload(add(uri, 0x20)))
-                sstore(add(tmp, 0x01), mload(add(uri, 0x40)))
+                // ownerOf[id] = to // uintData(bytes32, toa)
+                mstore(0x00, ONO)
+                mstore(0x20, tid)
+                mstore(ptr, UI2)
+                mstore(add(ptr, 0x04), keccak256(0x00, 0x40))
+                mstore(add(ptr, 0x24), caller())
+                pop(call(gas(), sto, 0x00, ptr, 0x44, 0x00, 0x00))   
+
+                // tokenURI[l] = CIDData(address(), id, str1, str2)
+                mstore(ptr, CID)
+                mstore(add(ptr, 0x04), address())
+                mstore(add(ptr, 0x24), tid)
+                mstore(add(ptr, 0x44), mload(add(uri, 0x20)))
+                mstore(add(ptr, 0x64), mload(add(uri, 0x40)))
+                pop(call(gas(), sto, 0x00, ptr, 0x84, 0x00, 0x00))
 
                 // emit Transfer()
                 log4(0x00, 0x00, ETF, 0x00, caller(), tid)
@@ -79,24 +105,51 @@ contract ItemMgmt is DynamicPrice {
     TEMP TEMP TEMP TEMP TEMP TEMP TEMP TEMP TEMP TEMP TEMP TEMP TEMP
     ***************************************************************/ 
     function mintTEST() public {
-            string memory uri = "ipfs://QmNvWjdSxcXDzevFNYw46QkNvuTEod1FF8Le7GYLxWAavk";
+            string memory uri = "QmNvWjdSxcXDzevFNYw46QkNvuTEod1FF8Le7GYLxWAavk";
             assembly {
-                let tid := add(sload(CNT), 0x01) // count++
+                let sto := sload(STO)
+                let ptr := mload(0x40)
+                // count++
+                let tid := add(sload(CNT), 0x01)
                 sstore(CNT, tid)
 
-                // balanceOf(msg.sender)++
-                mstore(0x00, caller())
-                let tmp := keccak256(0x00, 0x20)
-                sstore(tmp, add(sload(tmp), 0x01))
+                // tokensOwned()++ uintEnum(address(), to, id, 0x0)
+                mstore(0x00, address())
+                mstore(0x20, caller())
+                mstore(ptr, PUS)
+                mstore(add(ptr, 0x04), keccak256(0x00, 0x40))
+                mstore(add(ptr, 0x24), tid)
+                pop(call(gas(), sto, 0x00, ptr, 0x44, 0x00, 0x00))
 
-                // ownerOf[tid] = msg.sender
-                sstore(tid, caller())
+                // balanceOf(to) = uintData(address(), msg.sender, 2)
+                mstore(ptr, UIN)
+                mstore(add(ptr, 0x04), address())
+                mstore(add(ptr, 0x24), caller())
+                mstore(add(ptr, 0x44), 0x02)
+                pop(staticcall(gas(), sto, ptr, 0x64, 0x00, 0x20))
+                // balanceOf(msg.sender)++ uintData(address(), msg.sender, 0, balanceOf(msg.sender))
+                mstore(ptr, UID)
+                mstore(add(ptr, 0x04), address())
+                mstore(add(ptr, 0x24), caller())
+                mstore(add(ptr, 0x44), 0x02)
+                mstore(add(ptr, 0x64), add(0x01, mload(0x00)))
+                pop(call(gas(), sto, 0x00, ptr, 0x84, 0x00, 0x00))
 
-                // tokenURI[tid] = uri
-                mstore(0x00, tid)
-                tmp := keccak256(0x00, 0x20)
-                sstore(tmp, mload(add(uri, 0x20)))
-                sstore(add(tmp, 0x01), mload(add(uri, 0x40)))
+                // ownerOf[id] = to // uintData(bytes32, toa)
+                mstore(0x00, ONO)
+                mstore(0x20, tid)
+                mstore(ptr, UI2)
+                mstore(add(ptr, 0x04), keccak256(0x00, 0x40))
+                mstore(add(ptr, 0x24), caller())
+                pop(call(gas(), sto, 0x00, ptr, 0x44, 0x00, 0x00)) 
+
+                // tokenURI[l] = CIDData(address(), id, str1, str2)
+                mstore(ptr, CID)
+                mstore(add(ptr, 0x04), address())
+                mstore(add(ptr, 0x24), tid)
+                mstore(add(ptr, 0x44), mload(add(uri, 0x20)))
+                mstore(add(ptr, 0x64), mload(add(uri, 0x40)))
+                pop(call(gas(), sto, 0x00, ptr, 0x84, 0x00, 0x00))
 
                 // emit Transfer()
                 log4(0x00, 0x00, ETF, 0x00, caller(), tid)
@@ -133,15 +186,19 @@ contract ItemMgmt is DynamicPrice {
         assembly {
             let sto := sload(STO)
 
-            // ownerOf(tid)
-            mstore(0x00, sload(tid))
+            // ownerOf(tid) // uintData(bytes32)
+            mstore(0x00, ONO)
+            mstore(0x20, tid)
+            mstore(0x80, UI1)
+            mstore(0x84, keccak256(0x00, 0x40))
+            pop(staticcall(gas(), sto, 0x80, 0x24, 0x00, 0x20))
             
             // require(ownerOf(tid) == msg.sender)
             if iszero(eq(mload(0x00), caller())) {
                 mstore(0x80, ERR) 
                 mstore(0x84, 0x20)
-                mstore(0xA4, 0x09)
-                mstore(0xC4, "Not owner")
+                mstore(0xA4, 0x0c)
+                mstore(0xC4, "Approval err")
                 revert(0x80, 0x64)
             }
 
@@ -150,10 +207,12 @@ contract ItemMgmt is DynamicPrice {
             log1(0x00, 0x20, EMD)
 
             // tokenURI[l] = CIDData(address(), id, str1, str2)
-            mstore(0x00, tid)
-            let tmp := keccak256(0x00, 0x20)
-            sstore(tmp, mload(add(uri, 0x20)))
-            sstore(add(tmp, 0x01), mload(add(uri, 0x40)))
+            mstore(0xe0, CID)
+            mstore(0xe4, address())
+            mstore(0x0104, tid)
+            mstore(0x0124, mload(add(uri, 0x20)))
+            mstore(0x0144, mload(add(uri, 0x40)))
+            pop(call(gas(), sto, 0x00, 0xe0, 0x84, 0x00, 0x00))
         }
         
         pay(address(this), lis, this.owner(), 1, 0); // 若金额设定就支付
@@ -237,7 +296,7 @@ contract ItemMgmt is DynamicPrice {
         }
     }
 
-    // 拿指数
+    // block.timestamp
     function getUint(address adr, uint uid) external view returns(uint) { // 0x2c7fb918
         assembly {
             // uintData(address(), addr, 0x0)

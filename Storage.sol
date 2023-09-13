@@ -8,8 +8,7 @@ contract Storage is Access {
     
     constructor() {
         assembly {
-            //设置signer [0][0][1]
-            sstore(0xcbfe4baa920060fc34aa65135b74b83fa81df36f6e21d90c8301c8810d2c89d9, caller())
+            sstore(0xcbfe4baa920060fc34aa65135b74b83fa81df36f6e21d90c8301c8810d2c89d9, caller()) // signer
         }
     }
 
